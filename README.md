@@ -1,6 +1,8 @@
-# weatherkit
+# weatherkit-rs
 
 Safe Rust bindings for Apple's [WeatherKit](https://developer.apple.com/documentation/weatherkit) framework on macOS 13+.
+
+The published package is `weatherkit-rs`; the Rust library crate is imported as `weatherkit`.
 
 > **Status:** v0.1.0 covers `WeatherService.shared.weather(for:)`, current conditions, hourly and daily forecasts, minute forecasts, weather alerts, and availability metadata.
 
