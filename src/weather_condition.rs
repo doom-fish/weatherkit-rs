@@ -169,6 +169,21 @@ impl Precipitation {
             Self::Unknown(value) => value.as_str(),
         }
     }
+
+    pub fn descriptors() -> Result<Vec<PrecipitationDescriptor>, WeatherKitError> {
+        parse_json_from_static(
+            ffi::weather_condition::wk_precipitation_copy_descriptors_json,
+            "precipitation descriptors",
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PrecipitationDescriptor {
+    pub raw_value: String,
+    pub description: String,
+    pub accessibility_description: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]

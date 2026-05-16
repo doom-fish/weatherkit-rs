@@ -21,6 +21,21 @@ struct WKCurrentWeatherPayload: Codable {
     let metadata: WKWeatherMetadataPayload
 }
 
+struct WKWindCompassDirectionDescriptorPayload: Codable {
+    let rawValue: String
+    let abbreviation: String
+    let description: String
+    let accessibilityDescription: String
+}
+
+struct WKUVExposureCategoryDescriptorPayload: Codable {
+    let rawValue: String
+    let description: String
+    let accessibilityDescription: String
+    let rangeStart: Int
+    let rangeEnd: Int
+}
+
 func wkPayload(from currentWeather: CurrentWeather) -> WKCurrentWeatherPayload {
     let cloudCoverByAltitude: WKCloudCoverByAltitudePayload?
     if #available(macOS 15.0, *) {
@@ -67,4 +82,44 @@ public func wk_current_weather_copy_json(
     _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
 ) -> Int32 {
     wkCopyBoxJSON(handle, outJSON, outError, context: "CurrentWeather", payload: { (value: CurrentWeather) in wkPayload(from: value) })
+}
+
+@_cdecl("wk_wind_compass_direction_copy_descriptors_json")
+public func wk_wind_compass_direction_copy_descriptors_json(
+    _ outJSON: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?,
+    _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
+) -> Int32 {
+    wkWriteJSON(
+        Wind.CompassDirection.allCases.map {
+            WKWindCompassDirectionDescriptorPayload(
+                rawValue: $0.rawValue,
+                abbreviation: $0.abbreviation,
+                description: $0.description,
+                accessibilityDescription: $0.accessibilityDescription
+            )
+        },
+        into: outJSON,
+        outError: outError
+    )
+}
+
+@_cdecl("wk_uv_exposure_category_copy_descriptors_json")
+public func wk_uv_exposure_category_copy_descriptors_json(
+    _ outJSON: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?,
+    _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
+) -> Int32 {
+    wkWriteJSON(
+        UVIndex.ExposureCategory.allCases.map {
+            let range = $0.rangeValue
+            return WKUVExposureCategoryDescriptorPayload(
+                rawValue: $0.rawValue,
+                description: $0.description,
+                accessibilityDescription: $0.accessibilityDescription,
+                rangeStart: range.lowerBound,
+                rangeEnd: range.upperBound
+            )
+        },
+        into: outJSON,
+        outError: outError
+    )
 }

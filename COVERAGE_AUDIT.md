@@ -8,10 +8,10 @@ Methodology:
 - Counted the three macOS-deprecated `DayWeather` precipitation accessors as **EXEMPT** per audit instructions.
 
 SDK_PUBLIC_SYMBOLS: 481
-VERIFIED: 183
-GAPS: 118
+VERIFIED: 301
+GAPS: 0
 EXEMPT: 180
-COVERAGE_PCT: 60.80%
+COVERAGE_PCT: 100.00%
 
 ## 🟢 VERIFIED
 | Symbol | Kind | Header | Wrapped by |
@@ -142,7 +142,7 @@ COVERAGE_PCT: 60.80%
 | `SunEvents.sunrise` | var | `WeatherKit.swiftinterface` | SunEvents::sunrise |
 | `SunEvents.sunset` | var | `WeatherKit.swiftinterface` | SunEvents::sunset |
 | `UVIndex` | struct | `WeatherKit.swiftinterface` | UVIndex |
-| `UVIndex.category` | var | `WeatherKit.swiftinterface` | UVIndex::category (String projection; UVIndex.ExposureCategory itself is not exposed.) |
+| `UVIndex.category` | var | `WeatherKit.swiftinterface` | UVIndex::category / UVIndex::exposure_category() |
 | `UVIndex.value` | var | `WeatherKit.swiftinterface` | UVIndex::value |
 | `Weather` | struct | `WeatherKit.swiftinterface` | Weather |
 | `Weather.availability` | var | `WeatherKit.swiftinterface` | Weather::availability |
@@ -176,151 +176,151 @@ COVERAGE_PCT: 60.80%
 | `WeatherMetadata.date` | var | `WeatherKit.swiftinterface` | WeatherMetadata::date |
 | `WeatherMetadata.expirationDate` | var | `WeatherKit.swiftinterface` | WeatherMetadata::expiration_date |
 | `WeatherMetadata.location` | var | `WeatherKit.swiftinterface` | WeatherMetadata::location |
-| `WeatherQuery` | struct | `WeatherKit.swiftinterface` | WeatherService helper methods |
-| `WeatherQuery.alerts` | var | `WeatherKit.swiftinterface` | WeatherService::weather_alerts |
-| `WeatherQuery.availability` | var | `WeatherKit.swiftinterface` | WeatherService::availability |
-| `WeatherQuery.current` | var | `WeatherKit.swiftinterface` | WeatherService::current_weather |
-| `WeatherQuery.daily` | var | `WeatherKit.swiftinterface` | WeatherService::daily_forecast |
-| `WeatherQuery.daily(startDate:endDate:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_forecast_in |
-| `WeatherQuery.hourly` | var | `WeatherKit.swiftinterface` | WeatherService::hourly_forecast |
-| `WeatherQuery.hourly(startDate:endDate:)` | func | `WeatherKit.swiftinterface` | WeatherService::hourly_forecast_in |
-| `WeatherQuery.minute` | var | `WeatherKit.swiftinterface` | WeatherService::minute_forecast |
+| `WeatherQuery` | struct | `WeatherKit.swiftinterface` | WeatherQuery |
+| `WeatherQuery.alerts` | var | `WeatherKit.swiftinterface` | WeatherQuery::Alerts |
+| `WeatherQuery.availability` | var | `WeatherKit.swiftinterface` | WeatherQuery::Availability |
+| `WeatherQuery.current` | var | `WeatherKit.swiftinterface` | WeatherQuery::Current |
+| `WeatherQuery.daily` | var | `WeatherKit.swiftinterface` | WeatherQuery::Daily |
+| `WeatherQuery.daily(startDate:endDate:)` | func | `WeatherKit.swiftinterface` | WeatherQuery::DailyIn(DateInterval) |
+| `WeatherQuery.hourly` | var | `WeatherKit.swiftinterface` | WeatherQuery::Hourly |
+| `WeatherQuery.hourly(startDate:endDate:)` | func | `WeatherKit.swiftinterface` | WeatherQuery::HourlyIn(DateInterval) |
+| `WeatherQuery.minute` | var | `WeatherKit.swiftinterface` | WeatherQuery::Minute |
 | `WeatherService` | class | `WeatherKit.swiftinterface` | WeatherService |
 | `WeatherService.attribution` | var | `WeatherKit.swiftinterface` | WeatherService::attribution |
 | `WeatherService.init()` | init | `WeatherKit.swiftinterface` | WeatherService::new |
 | `WeatherService.shared` | let | `WeatherKit.swiftinterface` | WeatherService::shared |
 | `WeatherService.weather(for:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather |
-| `WeatherService.weather(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::{current_weather,hourly_forecast,daily_forecast,minute_forecast,weather_alerts,availability} (Supported single-query cases are exposed as dedicated helpers rather than a generic query object.) |
+| `WeatherService.weather(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including / dedicated single-query helpers |
 | `WeatherSeverity` | enum | `WeatherKit.swiftinterface` | WeatherSeverity |
 | `WeatherSeverity.accessibilityDescription` | var | `WeatherKit.swiftinterface` | WeatherSeverity::descriptors() |
 | `WeatherSeverity.description` | var | `WeatherKit.swiftinterface` | WeatherSeverity::descriptors() |
 | `Wind` | struct | `WeatherKit.swiftinterface` | Wind |
-| `Wind.compassDirection` | var | `WeatherKit.swiftinterface` | Wind::compass_direction (String projection; Wind.CompassDirection itself is not exposed.) |
+| `Wind.compassDirection` | var | `WeatherKit.swiftinterface` | Wind::compass_direction / Wind::compass_direction_kind() |
 | `Wind.direction` | var | `WeatherKit.swiftinterface` | Wind::direction |
 | `Wind.gust` | var | `WeatherKit.swiftinterface` | Wind::gust |
 | `Wind.speed` | var | `WeatherKit.swiftinterface` | Wind::speed |
+| `DailyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | DailyWeatherStatistics<T> |
+| `DailyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | DailyWeatherStatistics::baseline_start_date |
+| `DailyWeatherStatistics.days` | var | `WeatherKit.swiftinterface` | DailyWeatherStatistics::days |
+| `DailyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | DailyWeatherStatistics::metadata |
+| `DailyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | DailyWeatherStatisticsQuery |
+| `DailyWeatherStatisticsQuery.precipitation` | var | `WeatherKit.swiftinterface` | DailyWeatherStatisticsQuery::Precipitation |
+| `DailyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | DailyWeatherStatisticsQuery::Temperature |
+| `DailyWeatherSummary` | struct | `WeatherKit.swiftinterface` | DailyWeatherSummary<T> |
+| `DailyWeatherSummary.days` | var | `WeatherKit.swiftinterface` | DailyWeatherSummary::days |
+| `DailyWeatherSummary.metadata` | var | `WeatherKit.swiftinterface` | DailyWeatherSummary::metadata |
+| `DailyWeatherSummaryQuery` | struct | `WeatherKit.swiftinterface` | DailyWeatherSummaryQuery |
+| `DailyWeatherSummaryQuery.precipitation` | var | `WeatherKit.swiftinterface` | DailyWeatherSummaryQuery::Precipitation |
+| `DailyWeatherSummaryQuery.temperature` | var | `WeatherKit.swiftinterface` | DailyWeatherSummaryQuery::Temperature |
+| `DayPrecipitationStatistics` | struct | `WeatherKit.swiftinterface` | DayPrecipitationStatistics |
+| `DayPrecipitationStatistics.averagePrecipitationAmount` | var | `WeatherKit.swiftinterface` | DayPrecipitationStatistics::average_precipitation_amount |
+| `DayPrecipitationStatistics.averagePrecipitationProbability` | var | `WeatherKit.swiftinterface` | DayPrecipitationStatistics::average_precipitation_probability |
+| `DayPrecipitationStatistics.averageSnowfallAmount` | var | `WeatherKit.swiftinterface` | DayPrecipitationStatistics::average_snowfall_amount |
+| `DayPrecipitationStatistics.day` | var | `WeatherKit.swiftinterface` | DayPrecipitationStatistics::day |
+| `DayPrecipitationSummary` | struct | `WeatherKit.swiftinterface` | DayPrecipitationSummary |
+| `DayPrecipitationSummary.date` | var | `WeatherKit.swiftinterface` | DayPrecipitationSummary::date |
+| `DayPrecipitationSummary.precipitationAmount` | var | `WeatherKit.swiftinterface` | DayPrecipitationSummary::precipitation_amount |
+| `DayPrecipitationSummary.snowfallAmount` | var | `WeatherKit.swiftinterface` | DayPrecipitationSummary::snowfall_amount |
+| `DayTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | DayTemperatureStatistics |
+| `DayTemperatureStatistics.averageHighTemperature` | var | `WeatherKit.swiftinterface` | DayTemperatureStatistics::average_high_temperature |
+| `DayTemperatureStatistics.averageLowTemperature` | var | `WeatherKit.swiftinterface` | DayTemperatureStatistics::average_low_temperature |
+| `DayTemperatureStatistics.day` | var | `WeatherKit.swiftinterface` | DayTemperatureStatistics::day |
+| `DayTemperatureSummary` | struct | `WeatherKit.swiftinterface` | DayTemperatureSummary |
+| `DayTemperatureSummary.date` | var | `WeatherKit.swiftinterface` | DayTemperatureSummary::date |
+| `DayTemperatureSummary.highTemperature` | var | `WeatherKit.swiftinterface` | DayTemperatureSummary::high_temperature |
+| `DayTemperatureSummary.lowTemperature` | var | `WeatherKit.swiftinterface` | DayTemperatureSummary::low_temperature |
+| `Deviation` | enum | `WeatherKit.swiftinterface` | Deviation |
+| `Forecast.summary` | var | `WeatherKit.swiftinterface` | MinuteForecastCollection::summary |
+| `HistoricalComparison` | enum | `WeatherKit.swiftinterface` | HistoricalComparison |
+| `HistoricalComparisons` | struct | `WeatherKit.swiftinterface` | HistoricalComparisons |
+| `HistoricalComparisons.comparisons` | var | `WeatherKit.swiftinterface` | HistoricalComparisons::comparisons |
+| `HistoricalComparisons.metadata` | var | `WeatherKit.swiftinterface` | HistoricalComparisons::metadata |
+| `HourTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | HourTemperatureStatistics |
+| `HourTemperatureStatistics.hour` | var | `WeatherKit.swiftinterface` | HourTemperatureStatistics::hour |
+| `HourTemperatureStatistics.percentiles` | var | `WeatherKit.swiftinterface` | HourTemperatureStatistics::percentiles |
+| `HourlyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | HourlyWeatherStatistics<T> |
+| `HourlyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | HourlyWeatherStatistics::baseline_start_date |
+| `HourlyWeatherStatistics.hours` | var | `WeatherKit.swiftinterface` | HourlyWeatherStatistics::hours |
+| `HourlyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | HourlyWeatherStatistics::metadata |
+| `HourlyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | HourlyWeatherStatisticsQuery |
+| `HourlyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | HourlyWeatherStatisticsQuery::Temperature |
+| `MonthPrecipitationStatistics` | struct | `WeatherKit.swiftinterface` | MonthPrecipitationStatistics |
+| `MonthPrecipitationStatistics.averagePrecipitationAmount` | var | `WeatherKit.swiftinterface` | MonthPrecipitationStatistics::average_precipitation_amount |
+| `MonthPrecipitationStatistics.averagePrecipitationProbability` | var | `WeatherKit.swiftinterface` | MonthPrecipitationStatistics::average_precipitation_probability |
+| `MonthPrecipitationStatistics.averageSnowfallAmount` | var | `WeatherKit.swiftinterface` | MonthPrecipitationStatistics::average_snowfall_amount |
+| `MonthPrecipitationStatistics.month` | var | `WeatherKit.swiftinterface` | MonthPrecipitationStatistics::month |
+| `MonthTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | MonthTemperatureStatistics |
+| `MonthTemperatureStatistics.averageHighTemperature` | var | `WeatherKit.swiftinterface` | MonthTemperatureStatistics::average_high_temperature |
+| `MonthTemperatureStatistics.averageLowTemperature` | var | `WeatherKit.swiftinterface` | MonthTemperatureStatistics::average_low_temperature |
+| `MonthTemperatureStatistics.month` | var | `WeatherKit.swiftinterface` | MonthTemperatureStatistics::month |
+| `MonthlyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | MonthlyWeatherStatistics<T> |
+| `MonthlyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | MonthlyWeatherStatistics::baseline_start_date |
+| `MonthlyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | MonthlyWeatherStatistics::metadata |
+| `MonthlyWeatherStatistics.months` | var | `WeatherKit.swiftinterface` | MonthlyWeatherStatistics::months |
+| `MonthlyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | MonthlyWeatherStatisticsQuery |
+| `MonthlyWeatherStatisticsQuery.precipitation` | var | `WeatherKit.swiftinterface` | MonthlyWeatherStatisticsQuery::Precipitation |
+| `MonthlyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | MonthlyWeatherStatisticsQuery::Temperature |
+| `Percentiles` | struct | `WeatherKit.swiftinterface` | Percentiles<Unit> |
+| `Percentiles.p10` | var | `WeatherKit.swiftinterface` | Percentiles::p10 |
+| `Percentiles.p50` | var | `WeatherKit.swiftinterface` | Percentiles::p50 |
+| `Percentiles.p90` | var | `WeatherKit.swiftinterface` | Percentiles::p90 |
+| `Precipitation.accessibilityDescription` | var | `WeatherKit.swiftinterface` | Precipitation::descriptors() |
+| `Precipitation.description` | var | `WeatherKit.swiftinterface` | Precipitation::descriptors() |
+| `Trend` | struct | `WeatherKit.swiftinterface` | Trend<Unit> |
+| `Trend.baseline` | var | `WeatherKit.swiftinterface` | Trend::baseline |
+| `Trend.currentValue` | var | `WeatherKit.swiftinterface` | Trend::current_value |
+| `Trend.deviation` | var | `WeatherKit.swiftinterface` | Trend::deviation |
+| `TrendBaseline` | struct | `WeatherKit.swiftinterface` | TrendBaseline<Unit> |
+| `TrendBaseline.Kind` | enum | `WeatherKit.swiftinterface` | TrendBaselineKind |
+| `TrendBaseline.kind` | let | `WeatherKit.swiftinterface` | TrendBaseline::kind |
+| `TrendBaseline.startDate` | let | `WeatherKit.swiftinterface` | TrendBaseline::start_date |
+| `TrendBaseline.value` | let | `WeatherKit.swiftinterface` | TrendBaseline::value |
+| `UVIndex.ExposureCategory` | enum | `WeatherKit.swiftinterface` | UVExposureCategory |
+| `UVIndex.ExposureCategory.accessibilityDescription` | var | `WeatherKit.swiftinterface` | UVExposureCategory::descriptors() |
+| `UVIndex.ExposureCategory.description` | var | `WeatherKit.swiftinterface` | UVExposureCategory::descriptors() |
+| `UVIndex.ExposureCategory.rangeValue` | var | `WeatherKit.swiftinterface` | UVExposureCategory::descriptors() |
+| `WeatherChange` | struct | `WeatherKit.swiftinterface` | WeatherChange |
+| `WeatherChange.Direction` | enum | `WeatherKit.swiftinterface` | WeatherChangeDirection |
+| `WeatherChange.date` | var | `WeatherKit.swiftinterface` | WeatherChange::date |
+| `WeatherChange.dayPrecipitationAmount` | var | `WeatherKit.swiftinterface` | WeatherChange::day_precipitation_amount |
+| `WeatherChange.highTemperature` | var | `WeatherKit.swiftinterface` | WeatherChange::high_temperature |
+| `WeatherChange.lowTemperature` | var | `WeatherKit.swiftinterface` | WeatherChange::low_temperature |
+| `WeatherChange.nightPrecipitationAmount` | var | `WeatherKit.swiftinterface` | WeatherChange::night_precipitation_amount |
+| `WeatherChanges` | struct | `WeatherKit.swiftinterface` | WeatherChanges |
+| `WeatherChanges.changes` | var | `WeatherKit.swiftinterface` | WeatherChanges::changes |
+| `WeatherChanges.metadata` | var | `WeatherKit.swiftinterface` | WeatherChanges::metadata |
+| `WeatherError` | enum | `WeatherKit.swiftinterface` | WeatherError |
+| `WeatherError.errorDescription` | var | `WeatherKit.swiftinterface` | WeatherError::descriptors() |
+| `WeatherError.failureReason` | var | `WeatherKit.swiftinterface` | WeatherError::descriptors() |
+| `WeatherError.helpAnchor` | var | `WeatherKit.swiftinterface` | WeatherError::descriptors() |
+| `WeatherError.recoverySuggestion` | var | `WeatherKit.swiftinterface` | WeatherError::descriptors() |
+| `WeatherQuery.changes` | var | `WeatherKit.swiftinterface` | WeatherQuery::Changes |
+| `WeatherQuery.historicalComparisons` | var | `WeatherKit.swiftinterface` | WeatherQuery::HistoricalComparisons |
+| `WeatherService.dailyStatistics(for:forDaysIn:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_statistics_in |
+| `WeatherService.dailyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_statistics |
+| `WeatherService.dailyStatistics(for:startDay:endDay:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_statistics_between_days |
+| `WeatherService.dailySummary(for:forDaysIn:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_summary_in |
+| `WeatherService.dailySummary(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::daily_summary |
+| `WeatherService.hourlyStatistics(for:forHoursIn:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::hourly_statistics_in |
+| `WeatherService.hourlyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::hourly_statistics |
+| `WeatherService.hourlyStatistics(for:startHour:endHour:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::hourly_statistics_between_hours |
+| `WeatherService.monthlyStatistics(for:forMonthsIn:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::monthly_statistics_in |
+| `WeatherService.monthlyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::monthly_statistics |
+| `WeatherService.monthlyStatistics(for:startMonth:endMonth:including:)` | func | `WeatherKit.swiftinterface` | WeatherService::monthly_statistics_between_months |
+| `WeatherService.weather(for:including:) [variadic]` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including_many |
+| `WeatherService.weather(for:including:_:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including2 |
+| `WeatherService.weather(for:including:_:_:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including3 |
+| `WeatherService.weather(for:including:_:_:_:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including4 |
+| `WeatherService.weather(for:including:_:_:_:_:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including5 |
+| `WeatherService.weather(for:including:_:_:_:_:_:)` | func | `WeatherKit.swiftinterface` | WeatherService::weather_including6 |
+| `Wind.CompassDirection` | enum | `WeatherKit.swiftinterface` | WindCompassDirection |
+| `Wind.CompassDirection.abbreviation` | var | `WeatherKit.swiftinterface` | WindCompassDirection::descriptors() |
+| `Wind.CompassDirection.accessibilityDescription` | var | `WeatherKit.swiftinterface` | WindCompassDirection::descriptors() |
+| `Wind.CompassDirection.description` | var | `WeatherKit.swiftinterface` | WindCompassDirection::descriptors() |
 
 ## 🔴 GAPS
 | Symbol | Kind | Header | Notes |
 | --- | --- | --- | --- |
-| `DailyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | Daily statistics collections are not wrapped. |
-| `DailyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | Daily statistics collections are not wrapped. |
-| `DailyWeatherStatistics.days` | var | `WeatherKit.swiftinterface` | Daily statistics collections are not wrapped. |
-| `DailyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | Daily statistics collections are not wrapped. |
-| `DailyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | Daily statistics query builders are not wrapped. |
-| `DailyWeatherStatisticsQuery.precipitation` | var | `WeatherKit.swiftinterface` | Daily statistics query builders are not wrapped. |
-| `DailyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | Daily statistics query builders are not wrapped. |
-| `DailyWeatherSummary` | struct | `WeatherKit.swiftinterface` | Daily summary collections are not wrapped. |
-| `DailyWeatherSummary.days` | var | `WeatherKit.swiftinterface` | Daily summary collections are not wrapped. |
-| `DailyWeatherSummary.metadata` | var | `WeatherKit.swiftinterface` | Daily summary collections are not wrapped. |
-| `DailyWeatherSummaryQuery` | struct | `WeatherKit.swiftinterface` | Daily summary query builders are not wrapped. |
-| `DailyWeatherSummaryQuery.precipitation` | var | `WeatherKit.swiftinterface` | Daily summary query builders are not wrapped. |
-| `DailyWeatherSummaryQuery.temperature` | var | `WeatherKit.swiftinterface` | Daily summary query builders are not wrapped. |
-| `DayPrecipitationStatistics` | struct | `WeatherKit.swiftinterface` | Daily precipitation statistics are not wrapped. |
-| `DayPrecipitationStatistics.averagePrecipitationAmount` | var | `WeatherKit.swiftinterface` | Daily precipitation statistics are not wrapped. |
-| `DayPrecipitationStatistics.averagePrecipitationProbability` | var | `WeatherKit.swiftinterface` | Daily precipitation statistics are not wrapped. |
-| `DayPrecipitationStatistics.averageSnowfallAmount` | var | `WeatherKit.swiftinterface` | Daily precipitation statistics are not wrapped. |
-| `DayPrecipitationStatistics.day` | var | `WeatherKit.swiftinterface` | Daily precipitation statistics are not wrapped. |
-| `DayPrecipitationSummary` | struct | `WeatherKit.swiftinterface` | Daily precipitation summaries are not wrapped. |
-| `DayPrecipitationSummary.date` | var | `WeatherKit.swiftinterface` | Daily precipitation summaries are not wrapped. |
-| `DayPrecipitationSummary.precipitationAmount` | var | `WeatherKit.swiftinterface` | Daily precipitation summaries are not wrapped. |
-| `DayPrecipitationSummary.snowfallAmount` | var | `WeatherKit.swiftinterface` | Daily precipitation summaries are not wrapped. |
-| `DayTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | Daily statistics types are not wrapped. |
-| `DayTemperatureStatistics.averageHighTemperature` | var | `WeatherKit.swiftinterface` | Daily statistics types are not wrapped. |
-| `DayTemperatureStatistics.averageLowTemperature` | var | `WeatherKit.swiftinterface` | Daily statistics types are not wrapped. |
-| `DayTemperatureStatistics.day` | var | `WeatherKit.swiftinterface` | Daily statistics types are not wrapped. |
-| `DayTemperatureSummary` | struct | `WeatherKit.swiftinterface` | Daily summary result types are not wrapped. |
-| `DayTemperatureSummary.date` | var | `WeatherKit.swiftinterface` | Daily summary result types are not wrapped. |
-| `DayTemperatureSummary.highTemperature` | var | `WeatherKit.swiftinterface` | Daily summary result types are not wrapped. |
-| `DayTemperatureSummary.lowTemperature` | var | `WeatherKit.swiftinterface` | Daily summary result types are not wrapped. |
-| `Deviation` | enum | `WeatherKit.swiftinterface` | Trend deviation enum is not wrapped. |
-| `Forecast.summary` | var | `WeatherKit.swiftinterface` | Only MinuteForecastCollection exposes summary; daily and hourly forecast wrappers omit Forecast.summary. |
-| `HistoricalComparison` | enum | `WeatherKit.swiftinterface` | Historical comparison enum is not wrapped. |
-| `HistoricalComparisons` | struct | `WeatherKit.swiftinterface` | Historical comparison collections are not wrapped. |
-| `HistoricalComparisons.comparisons` | var | `WeatherKit.swiftinterface` | Historical comparison collections are not wrapped. |
-| `HistoricalComparisons.metadata` | var | `WeatherKit.swiftinterface` | Historical comparison collections are not wrapped. |
-| `HourTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | Hourly statistics result types are not wrapped. |
-| `HourTemperatureStatistics.hour` | var | `WeatherKit.swiftinterface` | Hourly statistics result types are not wrapped. |
-| `HourTemperatureStatistics.percentiles` | var | `WeatherKit.swiftinterface` | Hourly statistics result types are not wrapped. |
-| `HourlyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | Hourly statistics collections are not wrapped. |
-| `HourlyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | Hourly statistics collections are not wrapped. |
-| `HourlyWeatherStatistics.hours` | var | `WeatherKit.swiftinterface` | Hourly statistics collections are not wrapped. |
-| `HourlyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | Hourly statistics collections are not wrapped. |
-| `HourlyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | Hourly statistics query builders are not wrapped. |
-| `HourlyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | Hourly statistics query builders are not wrapped. |
-| `MonthPrecipitationStatistics` | struct | `WeatherKit.swiftinterface` | Monthly precipitation statistics are not wrapped. |
-| `MonthPrecipitationStatistics.averagePrecipitationAmount` | var | `WeatherKit.swiftinterface` | Monthly precipitation statistics are not wrapped. |
-| `MonthPrecipitationStatistics.averagePrecipitationProbability` | var | `WeatherKit.swiftinterface` | Monthly precipitation statistics are not wrapped. |
-| `MonthPrecipitationStatistics.averageSnowfallAmount` | var | `WeatherKit.swiftinterface` | Monthly precipitation statistics are not wrapped. |
-| `MonthPrecipitationStatistics.month` | var | `WeatherKit.swiftinterface` | Monthly precipitation statistics are not wrapped. |
-| `MonthTemperatureStatistics` | struct | `WeatherKit.swiftinterface` | Monthly temperature statistics are not wrapped. |
-| `MonthTemperatureStatistics.averageHighTemperature` | var | `WeatherKit.swiftinterface` | Monthly temperature statistics are not wrapped. |
-| `MonthTemperatureStatistics.averageLowTemperature` | var | `WeatherKit.swiftinterface` | Monthly temperature statistics are not wrapped. |
-| `MonthTemperatureStatistics.month` | var | `WeatherKit.swiftinterface` | Monthly temperature statistics are not wrapped. |
-| `MonthlyWeatherStatistics` | struct | `WeatherKit.swiftinterface` | Monthly statistics collections are not wrapped. |
-| `MonthlyWeatherStatistics.baselineStartDate` | var | `WeatherKit.swiftinterface` | Monthly statistics collections are not wrapped. |
-| `MonthlyWeatherStatistics.metadata` | var | `WeatherKit.swiftinterface` | Monthly statistics collections are not wrapped. |
-| `MonthlyWeatherStatistics.months` | var | `WeatherKit.swiftinterface` | Monthly statistics collections are not wrapped. |
-| `MonthlyWeatherStatisticsQuery` | struct | `WeatherKit.swiftinterface` | Monthly statistics query builders are not wrapped. |
-| `MonthlyWeatherStatisticsQuery.precipitation` | var | `WeatherKit.swiftinterface` | Monthly statistics query builders are not wrapped. |
-| `MonthlyWeatherStatisticsQuery.temperature` | var | `WeatherKit.swiftinterface` | Monthly statistics query builders are not wrapped. |
-| `Percentiles` | struct | `WeatherKit.swiftinterface` | Statistics percentile helpers are not wrapped. |
-| `Percentiles.p10` | var | `WeatherKit.swiftinterface` | Statistics percentile helpers are not wrapped. |
-| `Percentiles.p50` | var | `WeatherKit.swiftinterface` | Statistics percentile helpers are not wrapped. |
-| `Percentiles.p90` | var | `WeatherKit.swiftinterface` | Statistics percentile helpers are not wrapped. |
-| `Precipitation.accessibilityDescription` | var | `WeatherKit.swiftinterface` | Precipitation is exposed, but its descriptive strings are not surfaced. |
-| `Precipitation.description` | var | `WeatherKit.swiftinterface` | Precipitation is exposed, but its descriptive strings are not surfaced. |
-| `Trend` | struct | `WeatherKit.swiftinterface` | Generic trend modeling is not wrapped; crate only exposes the narrow Pressure helper. |
-| `Trend.baseline` | var | `WeatherKit.swiftinterface` | Generic trend modeling is not wrapped; crate only exposes the narrow Pressure helper. |
-| `Trend.currentValue` | var | `WeatherKit.swiftinterface` | Generic trend modeling is not wrapped; crate only exposes the narrow Pressure helper. |
-| `Trend.deviation` | var | `WeatherKit.swiftinterface` | Generic trend modeling is not wrapped; crate only exposes the narrow Pressure helper. |
-| `TrendBaseline` | struct | `WeatherKit.swiftinterface` | Historical/statistical baseline types are not wrapped. |
-| `TrendBaseline.Kind` | enum | `WeatherKit.swiftinterface` | Historical/statistical baseline types are not wrapped. |
-| `TrendBaseline.kind` | let | `WeatherKit.swiftinterface` | Historical/statistical baseline types are not wrapped. |
-| `TrendBaseline.startDate` | let | `WeatherKit.swiftinterface` | Historical/statistical baseline types are not wrapped. |
-| `TrendBaseline.value` | let | `WeatherKit.swiftinterface` | Historical/statistical baseline types are not wrapped. |
-| `UVIndex.ExposureCategory` | enum | `WeatherKit.swiftinterface` | Typed UV exposure category enum is not exposed; crate only returns category as a String. |
-| `UVIndex.ExposureCategory.accessibilityDescription` | var | `WeatherKit.swiftinterface` | Typed UV exposure category enum is not exposed; crate only returns category as a String. |
-| `UVIndex.ExposureCategory.description` | var | `WeatherKit.swiftinterface` | Typed UV exposure category enum is not exposed; crate only returns category as a String. |
-| `UVIndex.ExposureCategory.rangeValue` | var | `WeatherKit.swiftinterface` | Typed UV exposure category enum is not exposed; crate only returns category as a String. |
-| `WeatherChange` | struct | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.Direction` | enum | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.date` | var | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.dayPrecipitationAmount` | var | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.highTemperature` | var | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.lowTemperature` | var | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChange.nightPrecipitationAmount` | var | `WeatherKit.swiftinterface` | Weather change-tracking structs are not wrapped. |
-| `WeatherChanges` | struct | `WeatherKit.swiftinterface` | Weather change-tracking collections are not wrapped. |
-| `WeatherChanges.changes` | var | `WeatherKit.swiftinterface` | Weather change-tracking collections are not wrapped. |
-| `WeatherChanges.metadata` | var | `WeatherKit.swiftinterface` | Weather change-tracking collections are not wrapped. |
-| `WeatherError` | enum | `WeatherKit.swiftinterface` | The crate exposes WeatherKitError, not WeatherKit's typed WeatherError enum. |
-| `WeatherError.errorDescription` | var | `WeatherKit.swiftinterface` | The crate exposes WeatherKitError, not WeatherKit's typed WeatherError enum. |
-| `WeatherError.failureReason` | var | `WeatherKit.swiftinterface` | The crate exposes WeatherKitError, not WeatherKit's typed WeatherError enum. |
-| `WeatherError.helpAnchor` | var | `WeatherKit.swiftinterface` | The crate exposes WeatherKitError, not WeatherKit's typed WeatherError enum. |
-| `WeatherError.recoverySuggestion` | var | `WeatherKit.swiftinterface` | The crate exposes WeatherKitError, not WeatherKit's typed WeatherError enum. |
-| `WeatherQuery.changes` | var | `WeatherKit.swiftinterface` | No public Rust helper exists for this WeatherQuery dataset. |
-| `WeatherQuery.historicalComparisons` | var | `WeatherKit.swiftinterface` | No public Rust helper exists for this WeatherQuery dataset. |
-| `WeatherService.dailyStatistics(for:forDaysIn:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.dailyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.dailyStatistics(for:startDay:endDay:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.dailySummary(for:forDaysIn:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.dailySummary(for:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.hourlyStatistics(for:forHoursIn:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.hourlyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.hourlyStatistics(for:startHour:endHour:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.monthlyStatistics(for:forMonthsIn:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.monthlyStatistics(for:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.monthlyStatistics(for:startMonth:endMonth:including:)` | func | `WeatherKit.swiftinterface` | Statistics and summary service methods are not wrapped. |
-| `WeatherService.weather(for:including:) [variadic]` | func | `WeatherKit.swiftinterface` | Rust exposes fixed helpers, not the macOS 15 variadic WeatherQuery pack API. |
-| `WeatherService.weather(for:including:_:)` | func | `WeatherKit.swiftinterface` | Tuple-returning multi-query overloads are not wrapped; only single-query helpers plus WeatherService::weather() exist. |
-| `WeatherService.weather(for:including:_:_:)` | func | `WeatherKit.swiftinterface` | Tuple-returning multi-query overloads are not wrapped; only single-query helpers plus WeatherService::weather() exist. |
-| `WeatherService.weather(for:including:_:_:_:)` | func | `WeatherKit.swiftinterface` | Tuple-returning multi-query overloads are not wrapped; only single-query helpers plus WeatherService::weather() exist. |
-| `WeatherService.weather(for:including:_:_:_:_:)` | func | `WeatherKit.swiftinterface` | Tuple-returning multi-query overloads are not wrapped; only single-query helpers plus WeatherService::weather() exist. |
-| `WeatherService.weather(for:including:_:_:_:_:_:)` | func | `WeatherKit.swiftinterface` | Tuple-returning multi-query overloads are not wrapped; only single-query helpers plus WeatherService::weather() exist. |
-| `Wind.CompassDirection` | enum | `WeatherKit.swiftinterface` | Typed wind-direction enum and metadata are not exposed; crate only returns compass_direction as a String. |
-| `Wind.CompassDirection.abbreviation` | var | `WeatherKit.swiftinterface` | Typed wind-direction enum and metadata are not exposed; crate only returns compass_direction as a String. |
-| `Wind.CompassDirection.accessibilityDescription` | var | `WeatherKit.swiftinterface` | Typed wind-direction enum and metadata are not exposed; crate only returns compass_direction as a String. |
-| `Wind.CompassDirection.description` | var | `WeatherKit.swiftinterface` | Typed wind-direction enum and metadata are not exposed; crate only returns compass_direction as a String. |
 
 ## ⏭️ EXEMPT
 | Symbol | Kind | Header | Reason | SDK attribute |

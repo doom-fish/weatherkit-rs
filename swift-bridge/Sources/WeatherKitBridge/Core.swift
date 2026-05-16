@@ -251,6 +251,36 @@ func wkCopyBoxJSON<T, Payload: Encodable>(
     return wkWriteJSON(payload(value), into: outJSON, outError: outError)
 }
 
+@_cdecl("wk_json_handle_release")
+public func wk_json_handle_release(_ handle: UnsafeMutableRawPointer?) {
+    wkRelease(handle)
+}
+
+@_cdecl("wk_json_handle_copy_json")
+public func wk_json_handle_copy_json(
+    _ handle: UnsafeMutableRawPointer?,
+    _ outJSON: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?,
+    _ outError: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>?
+) -> Int32 {
+    guard let outJSON else {
+        wkWriteError(
+            wkBridgeError(code: Int(WK_STATUS_INVALID_ARGUMENT), message: "out_json must not be nil"),
+            into: outError
+        )
+        return WK_STATUS_INVALID_ARGUMENT
+    }
+    guard let json: String = wkUnretainedBoxValue(handle) else {
+        wkWriteError(
+            wkBridgeError(code: Int(WK_STATUS_INVALID_ARGUMENT), message: "JSON handle must not be nil"),
+            into: outError
+        )
+        return WK_STATUS_INVALID_ARGUMENT
+    }
+    outJSON.pointee = wkCString(json)
+    outError?.pointee = nil
+    return WK_STATUS_OK
+}
+
 func wkTemperature(_ value: Measurement<UnitTemperature>) -> Double {
     value.converted(to: .celsius).value
 }

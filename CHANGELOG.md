@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 - 2026-05-16
+
+- Added WeatherService multi-query helpers (`weather_including2` … `weather_including6` plus `weather_including_many`) and public `WeatherQuery` / `WeatherQueryResult` types.
+- Wrapped the macOS 15 statistics, summary, weather-changes, and historical-comparison families, including `Trend`, `TrendBaseline`, `Percentiles`, and the new WeatherService statistics helpers.
+- Added descriptor catalogs for `Precipitation`, `WeatherError`, `WindCompassDirection`, and `UVExposureCategory`, plus typed helper accessors on `Wind` and `UVIndex`.
+- Added integration tests and examples for the new statistics, change-tracking, multi-query, and enum-catalog APIs.
+- Updated `COVERAGE_AUDIT.md` to 100% non-exempt coverage.
+
 ## 0.2.0 - 2026-05-16
 
 - Reworked the Swift bridge into one file per WeatherKit logical area with retained opaque handles and `_release` functions on the Rust side.

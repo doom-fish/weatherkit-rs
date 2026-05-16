@@ -3,11 +3,15 @@
 use core::ffi::c_char;
 
 pub mod availability_kind;
+pub mod changes;
 pub mod current_weather;
 pub mod daily_forecast;
+pub mod error;
 pub mod hourly_forecast;
+pub mod json_handle;
 pub mod minute_forecast;
 pub mod moon_events;
+pub mod statistics;
 pub mod pressure;
 pub mod service;
 pub mod sun_events;

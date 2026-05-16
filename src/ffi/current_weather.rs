@@ -8,4 +8,12 @@ extern "C" {
         out_json: *mut *mut c_char,
         out_error: *mut *mut c_char,
     ) -> i32;
+    pub fn wk_wind_compass_direction_copy_descriptors_json(
+        out_json: *mut *mut c_char,
+        out_error: *mut *mut c_char,
+    ) -> i32;
+    pub fn wk_uv_exposure_category_copy_descriptors_json(
+        out_json: *mut *mut c_char,
+        out_error: *mut *mut c_char,
+    ) -> i32;
 }
