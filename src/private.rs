@@ -1,10 +1,52 @@
-use core::ffi::c_char;
+use core::ffi::{c_char, c_void};
 use std::ffi::CStr;
 
 use serde::de::DeserializeOwned;
 
 use crate::error::{ErrorPayload, WeatherKitError};
 use crate::ffi;
+
+pub(crate) type JsonHandleCopyFn =
+    unsafe extern "C" fn(*mut c_void, *mut *mut c_char, *mut *mut c_char) -> i32;
+pub(crate) type JsonStaticCopyFn = unsafe extern "C" fn(*mut *mut c_char, *mut *mut c_char) -> i32;
+pub(crate) type ReleaseFn = unsafe extern "C" fn(*mut c_void);
+
+pub(crate) struct OwnedHandle {
+    ptr: *mut c_void,
+    release: ReleaseFn,
+}
+
+impl OwnedHandle {
+    pub(crate) unsafe fn new(
+        ptr: *mut c_void,
+        release: ReleaseFn,
+        context: &str,
+    ) -> Result<Self, WeatherKitError> {
+        if ptr.is_null() {
+            Err(WeatherKitError::bridge(
+                -1,
+                format!("missing handle for {context}"),
+            ))
+        } else {
+            Ok(Self { ptr, release })
+        }
+    }
+
+    pub(crate) fn as_ptr(&self) -> *mut c_void {
+        self.ptr
+    }
+}
+
+impl Drop for OwnedHandle {
+    fn drop(&mut self) {
+        if !self.ptr.is_null() {
+            unsafe {
+                (self.release)(self.ptr);
+            }
+            self.ptr = core::ptr::null_mut();
+        }
+    }
+}
 
 pub(crate) unsafe fn take_string(ptr: *mut c_char) -> Option<String> {
     if ptr.is_null() {
@@ -31,8 +73,9 @@ pub(crate) unsafe fn parse_json_ptr<T: DeserializeOwned>(
     ptr: *mut c_char,
     context: &str,
 ) -> Result<T, WeatherKitError> {
-    let json = take_string(ptr)
-        .ok_or_else(|| WeatherKitError::bridge(-1, format!("missing JSON payload for {context}")))?;
+    let json = take_string(ptr).ok_or_else(|| {
+        WeatherKitError::bridge(-1, format!("missing JSON payload for {context}"))
+    })?;
     parse_json_str(&json, context)
 }
 
@@ -61,4 +104,33 @@ pub(crate) unsafe fn error_from_status(status: i32, err_msg: *mut c_char) -> Wea
         _ => "WeatherKit bridge failure",
     };
     WeatherKitError::bridge(i64::from(status), message)
+}
+
+pub(crate) fn parse_json_from_handle<T: DeserializeOwned>(
+    ptr: *mut c_void,
+    release: ReleaseFn,
+    copy_json: JsonHandleCopyFn,
+    context: &str,
+) -> Result<T, WeatherKitError> {
+    let handle = unsafe { OwnedHandle::new(ptr, release, context)? };
+    let mut out_json = core::ptr::null_mut();
+    let mut out_error = core::ptr::null_mut();
+    let status = unsafe { copy_json(handle.as_ptr(), &mut out_json, &mut out_error) };
+    if status != ffi::status::OK {
+        return Err(unsafe { error_from_status(status, out_error) });
+    }
+    unsafe { parse_json_ptr(out_json, context) }
+}
+
+pub(crate) fn parse_json_from_static<T: DeserializeOwned>(
+    copy_json: JsonStaticCopyFn,
+    context: &str,
+) -> Result<T, WeatherKitError> {
+    let mut out_json = core::ptr::null_mut();
+    let mut out_error = core::ptr::null_mut();
+    let status = unsafe { copy_json(&mut out_json, &mut out_error) };
+    if status != ffi::status::OK {
+        return Err(unsafe { error_from_status(status, out_error) });
+    }
+    unsafe { parse_json_ptr(out_json, context) }
 }

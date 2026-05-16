@@ -2,14 +2,21 @@
 
 use core::ffi::c_char;
 
+pub mod availability_kind;
+pub mod current_weather;
+pub mod daily_forecast;
+pub mod hourly_forecast;
+pub mod minute_forecast;
+pub mod moon_events;
+pub mod pressure;
+pub mod service;
+pub mod sun_events;
+pub mod weather_alert;
+pub mod weather_attribution;
+pub mod weather_condition;
+
 extern "C" {
     pub fn wk_string_free(s: *mut c_char);
-    pub fn wk_weather_for(
-        latitude: f64,
-        longitude: f64,
-        out_json: *mut *mut c_char,
-        out_error: *mut *mut c_char,
-    ) -> i32;
 }
 
 pub mod status {

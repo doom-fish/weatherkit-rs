@@ -12,9 +12,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             );
         }
         Err(error) if error.is_entitlement_issue() => {
-            eprintln!(
-                "weatherkit requires entitled bundle ID; check developer.apple.com/account"
-            );
+            eprintln!("weatherkit requires entitled bundle ID; check developer.apple.com/account");
         }
         Err(error) => return Err(error.into()),
     }

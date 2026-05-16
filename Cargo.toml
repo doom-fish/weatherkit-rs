@@ -1,6 +1,6 @@
 [package]
 name = "weatherkit-doomfish"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 homepage = "https://github.com/doom-fish/weatherkit-rs"
@@ -17,11 +17,13 @@ include = [
     "swift-bridge/Package.swift",
     "swift-bridge/Sources/**/*",
     "examples/**/*",
+    "tests/**/*",
     "build.rs",
     "Cargo.toml",
     "README.md",
-    "LICENSE-*",
     "CHANGELOG.md",
+    "COVERAGE.md",
+    "LICENSE-*",
 ]
 
 [lints.rust]
@@ -50,9 +52,6 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [badges]
 maintenance = { status = "actively-developed" }
-
-[[example]]
-name = "01_weather_smoke"
 
 [profile.release]
 debug = "full"

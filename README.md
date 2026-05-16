@@ -4,22 +4,22 @@ Safe Rust bindings for Apple's [WeatherKit](https://developer.apple.com/document
 
 The published package is `weatherkit-doomfish`; the Rust library crate is imported as `weatherkit`.
 
-> **Status:** v0.1.0 covers `WeatherService.shared.weather(for:)`, current conditions, hourly and daily forecasts, minute forecasts, weather alerts, and availability metadata.
+> **Status:** v0.2.0 covers WeatherService, CurrentWeather, daily/hourly/minute forecasts, weather alerts, availability metadata, WeatherAttribution, SunEvents, MoonEvents, WeatherCondition descriptors, and Pressure helpers.
 
 ## Quick start
 
 ```rust,no_run
 use weatherkit::prelude::*;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), WeatherKitError> {
     let service = WeatherService::shared();
     let location = CLLocation::new(37.3349, -122.0090);
-    let weather = service.weather(&location)?;
+    let current = service.current_weather(&location)?;
 
     println!(
         "current temperature: {:.1}°C ({:?})",
-        weather.current_weather.temperature,
-        weather.current_weather.condition
+        current.temperature,
+        current.condition
     );
     Ok(())
 }
@@ -27,27 +27,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Highlights
 
-- `WeatherService::shared` singleton wrapper
-- `WeatherService::weather` for `CLLocation` coordinates
-- `Weather` with `current_weather`, `hourly_forecast`, `daily_forecast`, `minute_forecast`, `weather_alerts`, and `availability`
-- `CurrentWeather` with temperature, feels-like, humidity, dew point, pressure, pressure trend, condition, symbol name, wind, UV index, visibility, cloud cover, and daylight state
-- `HourForecast` and `DayForecast` with temperatures and precipitation
-- `WeatherCondition`, `Precipitation`, `PressureTrend`, and availability enums
-- Async Swift APIs bridged to synchronous Rust via `DispatchSemaphore + Task`
+- `WeatherService::weather`, `current_weather`, `daily_forecast`, `hourly_forecast`, `minute_forecast`, `weather_alerts`, `availability`, and `attribution`
+- `DailyForecast` / `HourlyForecast` containers with WeatherKit metadata plus `DayForecast` / `HourForecast` entries
+- `CurrentWeather` with precipitation intensity, metadata, and cloud-cover-by-altitude when available on macOS 15+
+- `DayForecast` with `SunEvents`, `MoonEvents`, `UVIndex`, wind, day-part forecasts, and precipitation-by-type details when available
+- `WeatherAttribution`, `WeatherSeverity`, `AvailabilityKind`, `WeatherCondition`, `PressureTrend`, and `MoonPhase` descriptor catalogs
+- Async Swift APIs bridged to synchronous Rust via `DispatchSemaphore + Task`, with opaque handle ownership released on the Rust side
 
 ## Entitlements / caveats
 
-WeatherKit usually requires an entitled bundle ID backed by a paid Apple Developer membership. Unsigned CLI binaries often fail with permission or bundle-configuration errors; the smoke example reports that case cleanly.
+WeatherKit usually requires an entitled bundle ID backed by a paid Apple Developer membership. Unsigned CLI binaries often fail with permission or bundle-configuration errors; every example in `examples/` treats that as a caveat instead of a hard failure.
 
-## Smoke example
+## Examples
 
-Run the WeatherKit smoke test with:
+Each logical area has a dedicated example:
 
 ```bash
-cargo run --all-features --example 01_weather_smoke
+cargo run --example 01_weather_service_smoke
+cargo run --example 02_current_weather_snapshot
+cargo run --example 03_daily_forecast_snapshot
+cargo run --example 04_hourly_forecast_snapshot
+cargo run --example 05_weather_alerts_snapshot
+cargo run --example 06_minute_forecast_snapshot
+cargo run --example 07_availability_kind_catalog
+cargo run --example 08_weather_attribution_snapshot
+cargo run --example 09_sun_events_snapshot
+cargo run --example 10_moon_events_snapshot
+cargo run --example 11_weather_condition_catalog
+cargo run --example 12_pressure_catalog
 ```
-
-It requests weather for Apple Park, prints the current temperature when available, otherwise prints `weatherkit requires entitled bundle ID; check developer.apple.com/account`, and always prints `✅ weatherkit smoke (with caveats)` when the entitlement caveat is handled.
 
 ## License
 
