@@ -40,6 +40,8 @@ impl OwnedHandle {
 impl Drop for OwnedHandle {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
+            // SAFETY: ptr is non-null, was validated in `new`, and is set to
+            // null immediately after so it cannot be released a second time.
             unsafe {
                 (self.release)(self.ptr);
             }

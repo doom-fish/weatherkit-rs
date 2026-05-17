@@ -1,7 +1,7 @@
 //! Async API for `WeatherKit` — executor-agnostic `Future` wrappers.
 //!
 //! Enabled with the `async` Cargo feature.  Every Apple `async throws` surface
-//! on [`WeatherService`](crate::WeatherService) gets a corresponding Future
+//! on [`WeatherService`] gets a corresponding Future
 //! newtype here.  The pattern follows the doom-fish gold standard from
 //! `screencapturekit-rs`: a `@_cdecl` Swift thunk launches a Swift `Task`,
 //! fires a C callback on completion, and the Rust side wraps the call in an
@@ -52,6 +52,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use doom_fish_utils::completion::{error_from_cstr, AsyncCompletion, AsyncCompletionFuture};
+use doom_fish_utils::panic_safe::catch_user_panic;
 
 use crate::availability_kind::WeatherAvailability;
 use crate::changes::{HistoricalComparisons, WeatherChanges};
@@ -89,6 +90,9 @@ fn parse_async_error(msg: String) -> WeatherKitError {
 /// Returns `(ptr, is_owned)`.  When `is_owned = true` the caller must release
 /// the handle with [`ffi::service::wk_weather_service_release`] after use.
 fn acquire_service_ptr(svc: WeatherService) -> Result<*mut c_void, WeatherKitError> {
+    // SAFETY: both FFI functions return a freshly retained opaque pointer (or
+    // null on failure); no invariants are required on the Rust side beyond the
+    // null-check that follows immediately.
     let ptr = unsafe {
         if svc.is_owned() {
             ffi::service::wk_weather_service_new()
@@ -118,23 +122,25 @@ type RawCb = unsafe extern "C" fn(*const c_void, *const i8, *mut c_void);
 // ============================================================================
 
 extern "C" fn weather_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<Weather>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match parse_json_from_handle::<Weather>(
-            ptr,
-            ffi::service::wk_weather_release,
-            ffi::service::wk_weather_copy_json,
-            "weather",
-        ) {
-            Ok(w) => unsafe { AsyncCompletion::complete_ok(ctx, w) },
-            Err(e) => unsafe { AsyncCompletion::<Weather>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("weather_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<Weather>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match parse_json_from_handle::<Weather>(
+                ptr,
+                ffi::service::wk_weather_release,
+                ffi::service::wk_weather_copy_json,
+                "weather",
+            ) {
+                Ok(w) => unsafe { AsyncCompletion::complete_ok(ctx, w) },
+                Err(e) => unsafe { AsyncCompletion::<Weather>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<Weather>::complete_err(ctx, "weather_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<Weather>::complete_err(ctx, "weather_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::weather`].
@@ -158,18 +164,20 @@ impl Future for WeatherFuture {
 // ============================================================================
 
 extern "C" fn current_weather_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match CurrentWeather::from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("current_weather_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match CurrentWeather::from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, "current_weather_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<CurrentWeather>::complete_err(ctx, "current_weather_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::current_weather`].
@@ -193,18 +201,20 @@ impl Future for CurrentWeatherFuture {
 // ============================================================================
 
 extern "C" fn hourly_forecast_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match HourlyForecast::from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("hourly_forecast_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match HourlyForecast::from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, "hourly_forecast_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<HourlyForecast>::complete_err(ctx, "hourly_forecast_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::hourly_forecast`] and
@@ -229,18 +239,20 @@ impl Future for HourlyForecastFuture {
 // ============================================================================
 
 extern "C" fn daily_forecast_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match DailyForecast::from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("daily_forecast_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match DailyForecast::from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, "daily_forecast_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<DailyForecast>::complete_err(ctx, "daily_forecast_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::daily_forecast`] and
@@ -265,18 +277,20 @@ impl Future for DailyForecastFuture {
 // ============================================================================
 
 extern "C" fn minute_forecast_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match MinuteForecastCollection::option_from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("minute_forecast_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match MinuteForecastCollection::option_from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, "minute_forecast_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<Option<MinuteForecastCollection>>::complete_err(ctx, "minute_forecast_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::minute_forecast`].
@@ -300,18 +314,20 @@ impl Future for MinuteForecastFuture {
 // ============================================================================
 
 extern "C" fn weather_alerts_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match alerts_from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("weather_alerts_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match alerts_from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, "weather_alerts_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<Vec<WeatherAlert>>::complete_err(ctx, "weather_alerts_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::weather_alerts`].
@@ -335,18 +351,20 @@ impl Future for WeatherAlertsFuture {
 // ============================================================================
 
 extern "C" fn availability_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match WeatherAvailability::from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("availability_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match WeatherAvailability::from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, "availability_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<WeatherAvailability>::complete_err(ctx, "availability_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::availability`].
@@ -370,18 +388,20 @@ impl Future for AvailabilityFuture {
 // ============================================================================
 
 extern "C" fn attribution_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match WeatherAttribution::from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("attribution_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match WeatherAttribution::from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, "attribution_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<WeatherAttribution>::complete_err(ctx, "attribution_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::attribution`].
@@ -405,18 +425,20 @@ impl Future for AttributionFuture {
 // ============================================================================
 
 extern "C" fn weather_changes_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match WeatherChanges::option_from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("weather_changes_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match WeatherChanges::option_from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, "weather_changes_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<Option<WeatherChanges>>::complete_err(ctx, "weather_changes_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::weather_changes`].
@@ -442,18 +464,20 @@ impl Future for WeatherChangesFuture {
 // ============================================================================
 
 extern "C" fn historical_comparisons_cb(result: *const c_void, error: *const i8, ctx: *mut c_void) {
-    if !error.is_null() {
-        let msg = unsafe { error_from_cstr(error) };
-        unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, msg) };
-    } else if !result.is_null() {
-        let ptr = result.cast_mut();
-        match HistoricalComparisons::option_from_owned_ptr(ptr) {
-            Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
-            Err(e) => unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, e.to_string()) },
+    catch_user_panic("historical_comparisons_cb", || {
+        if !error.is_null() {
+            let msg = unsafe { error_from_cstr(error) };
+            unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, msg) };
+        } else if !result.is_null() {
+            let ptr = result.cast_mut();
+            match HistoricalComparisons::option_from_owned_ptr(ptr) {
+                Ok(v) => unsafe { AsyncCompletion::complete_ok(ctx, v) },
+                Err(e) => unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, e.to_string()) },
+            }
+        } else {
+            unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, "historical_comparisons_cb: null result and null error".into()) };
         }
-    } else {
-        unsafe { AsyncCompletion::<Option<HistoricalComparisons>>::complete_err(ctx, "historical_comparisons_cb: null result and null error".into()) };
-    }
+    });
 }
 
 /// Future returned by [`AsyncWeatherService::historical_comparisons`].
@@ -553,7 +577,7 @@ impl AsyncWeatherService {
     // Public async API
     // -----------------------------------------------------------------------
 
-    /// Fetch the full [`Weather`](crate::service::Weather) bundle.
+    /// Fetch the full [`Weather`] bundle.
     ///
     /// Wraps `WeatherService.weather(for:) async throws`.
     ///

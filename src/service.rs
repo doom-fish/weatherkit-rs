@@ -238,6 +238,8 @@ enum QueryScope<'a> {
 
 impl ServiceHandle {
     fn acquire(kind: ServiceKind) -> Result<Self, WeatherKitError> {
+        // SAFETY: both FFI functions return a freshly retained opaque pointer
+        // (or null on failure); the null-check immediately below guards use.
         let ptr = unsafe {
             match kind {
                 ServiceKind::Shared => ffi::service::wk_weather_service_shared(),
@@ -262,6 +264,8 @@ impl ServiceHandle {
 impl Drop for ServiceHandle {
     fn drop(&mut self) {
         if !self.ptr.is_null() {
+            // SAFETY: ptr is non-null, was validated in `acquire`, and is set
+            // to null immediately after so it cannot be double-released.
             unsafe {
                 ffi::service::wk_weather_service_release(self.ptr);
             }
@@ -814,6 +818,9 @@ impl WeatherService {
             }
         };
         let status = unsafe {
+            // SAFETY: service.as_ptr() is a valid retained handle from
+            // ServiceHandle::acquire; out_handle and out_error are valid
+            // stack-allocated output pointers.
             call(
                 service.as_ptr(),
                 location.latitude,
@@ -829,6 +836,8 @@ impl WeatherService {
             )
         };
         if status != ffi::status::OK {
+            // SAFETY: error_from_status takes ownership of out_error (C string
+            // allocated by the Swift bridge) and frees it via wk_string_free.
             return Err(unsafe { error_from_status(status, out_error) });
         }
         if out_handle.is_null() {
@@ -848,8 +857,11 @@ impl WeatherService {
         let service = ServiceHandle::acquire(self.kind)?;
         let mut out_handle = core::ptr::null_mut();
         let mut out_error = core::ptr::null_mut();
+        // SAFETY: service.as_ptr() is a valid retained handle; out_handle and
+        // out_error are valid stack-allocated output pointers.
         let status = unsafe { call(service.as_ptr(), &mut out_handle, &mut out_error) };
         if status != ffi::status::OK {
+            // SAFETY: error_from_status takes ownership of the C string and frees it.
             return Err(unsafe { error_from_status(status, out_error) });
         }
         if out_handle.is_null() {
@@ -871,6 +883,8 @@ impl WeatherService {
         let service = ServiceHandle::acquire(self.kind)?;
         let mut out_handle = core::ptr::null_mut();
         let mut out_error = core::ptr::null_mut();
+        // SAFETY: service.as_ptr() is a valid retained handle; out_handle and
+        // out_error are valid stack-allocated output pointers.
         let status = unsafe {
             call(
                 service.as_ptr(),
@@ -881,6 +895,7 @@ impl WeatherService {
             )
         };
         if status != ffi::status::OK {
+            // SAFETY: error_from_status takes ownership of the C string and frees it.
             return Err(unsafe { error_from_status(status, out_error) });
         }
         if out_handle.is_null() {
@@ -908,6 +923,8 @@ impl WeatherService {
         } else {
             (0, 0.0, 0.0)
         };
+        // SAFETY: service.as_ptr() is a valid retained handle; out_handle and
+        // out_error are valid stack-allocated output pointers.
         let status = unsafe {
             call(
                 service.as_ptr(),
@@ -921,6 +938,7 @@ impl WeatherService {
             )
         };
         if status != ffi::status::OK {
+            // SAFETY: error_from_status takes ownership of the C string and frees it.
             return Err(unsafe { error_from_status(status, out_error) });
         }
         if out_handle.is_null() {

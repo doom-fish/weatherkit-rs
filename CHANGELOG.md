@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.1 - 2026-05-16
+
+### Fixes
+
+- **Async safety**: all 10 `extern "C"` Swift-completion callbacks
+  (`weather_cb`, `current_weather_cb`, `hourly_forecast_cb`,
+  `daily_forecast_cb`, `minute_forecast_cb`, `weather_alerts_cb`,
+  `availability_cb`, `attribution_cb`, `weather_changes_cb`,
+  `historical_comparisons_cb`) were missing panic guards. Any Rust panic
+  inside these callbacks would unwind across the FFI boundary — undefined
+  behaviour. Each callback body is now wrapped in
+  `doom_fish_utils::panic_safe::catch_user_panic`.
+- **Unsafe hygiene**: added `// SAFETY:` comments to every `unsafe { … }`
+  block in `src/async_api.rs`, `src/private.rs`, and `src/service.rs`
+  (`OwnedHandle::drop`, `ServiceHandle::drop`, `ServiceHandle::acquire`,
+  and all four `fetch_*_handle` helpers).
+- **Cargo hygiene**: `doom-fish-utils` version constraint widened from
+  `"0.1"` to `">=0.1, <0.3"` to leave room for the next minor release
+  without requiring a version bump here.
+
 ## 0.3.0 - 2026-05-16
 
 ### Async API (Tier 1)
