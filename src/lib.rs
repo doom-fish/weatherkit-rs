@@ -33,6 +33,9 @@ pub mod statistics;
 pub mod sun_events;
 pub mod weather;
 pub mod weather_alert;
+
+#[cfg(feature = "async")]
+pub mod async_api;
 pub mod weather_attribution;
 pub mod weather_condition;
 

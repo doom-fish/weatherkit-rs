@@ -3,6 +3,7 @@
 use core::ffi::c_char;
 
 pub mod availability_kind;
+pub mod async_ffi;
 pub mod changes;
 pub mod current_weather;
 pub mod daily_forecast;

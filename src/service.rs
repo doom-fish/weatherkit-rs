@@ -283,6 +283,10 @@ impl WeatherService {
         }
     }
 
+    pub(crate) const fn is_owned(self) -> bool {
+        matches!(self.kind, ServiceKind::Owned)
+    }
+
     pub fn attribution(&self) -> Result<WeatherAttribution, WeatherKitError> {
         let ptr = self.fetch_service_handle(
             ffi::service::wk_weather_service_attribution,

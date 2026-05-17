@@ -1,6 +1,42 @@
 # Changelog
 
-## 0.2.1 - 2026-05-16
+## 0.3.0 - 2026-05-16
+
+### Async API (Tier 1)
+
+Added `async_api` module (enabled by the `async` Cargo feature) with
+executor-agnostic `Future` newtypes wrapping every `async throws` surface
+on `WeatherService`.  Backed by `@_cdecl` Swift thunks in
+`swift-bridge/Sources/WeatherKitBridge/Async.swift`.
+
+New Future types:
+
+| Future type | Swift API |
+|-------------|-----------|
+| `WeatherFuture` | `WeatherService.weather(for:)` |
+| `CurrentWeatherFuture` | `WeatherService.weather(for: including: .current)` |
+| `HourlyForecastFuture` | `WeatherService.weather(for: including: .hourly)` |
+| `DailyForecastFuture` | `WeatherService.weather(for: including: .daily)` |
+| `MinuteForecastFuture` | `WeatherService.weather(for: including: .minute)` |
+| `WeatherAlertsFuture` | `WeatherService.weather(for: including: .alerts)` |
+| `AvailabilityFuture` | `WeatherService.weather(for: including: .availability)` |
+| `AttributionFuture` | `WeatherService.attribution` |
+| `WeatherChangesFuture` | `WeatherService.weather(for: including: .changes)` (macOS 15+) |
+| `HistoricalComparisonsFuture` | `WeatherService.weather(for: including: .historicalComparisons)` (macOS 15+) |
+
+New public item: `AsyncWeatherService` — entry point with methods matching
+all of the above.
+
+Added `examples/17_async_weather.rs` (run with `--features async`).
+Added `tests/async_api_tests.rs` with 12 tests (happy-path + error-path,
+auth-graceful).
+
+### Other
+
+- Added `doom-fish-utils` dependency (completion utilities).
+- Added `pollster = "0.3"` dev-dependency.
+
+
 
 - Added WeatherService multi-query helpers (`weather_including2` … `weather_including6` plus `weather_including_many`) and public `WeatherQuery` / `WeatherQueryResult` types.
 - Wrapped the macOS 15 statistics, summary, weather-changes, and historical-comparison families, including `Trend`, `TrendBaseline`, `Percentiles`, and the new WeatherService statistics helpers.

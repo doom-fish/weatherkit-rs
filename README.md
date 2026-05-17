@@ -4,7 +4,7 @@ Safe Rust bindings for Apple's [WeatherKit](https://developer.apple.com/document
 
 The published package is `weatherkit-doomfish`; the Rust library crate is imported as `weatherkit`.
 
-> **Status:** v0.2.1 covers the full non-exempt macOS WeatherKit surface, including WeatherService multi-query helpers, statistics/summaries, weather changes, historical comparisons, and enum descriptor catalogs.
+> **Status:** v0.3.0 covers the full non-exempt macOS WeatherKit surface, including WeatherService multi-query helpers, statistics/summaries, weather changes, historical comparisons, enum descriptor catalogs, and an executor-agnostic async API.
 
 ## Quick start
 
@@ -24,6 +24,30 @@ fn main() -> Result<(), WeatherKitError> {
     Ok(())
 }
 ```
+
+## Async API
+
+Enable with the `async` Cargo feature to get executor-agnostic `Future` wrappers for every `async throws` surface on `WeatherService`:
+
+```rust,no_run
+use weatherkit::async_api::AsyncWeatherService;
+use weatherkit::service::CLLocation;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    pollster::block_on(async {
+        let svc = AsyncWeatherService::shared();
+        let loc = CLLocation::new(37.3382, -121.8863);
+        let weather = svc.weather(&loc).await
+            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+        println!("{:?}", weather.current_weather.condition);
+        Ok(())
+    })
+}
+```
+
+Available futures: `WeatherFuture`, `CurrentWeatherFuture`, `HourlyForecastFuture`, `DailyForecastFuture`, `MinuteForecastFuture`, `WeatherAlertsFuture`, `AvailabilityFuture`, `AttributionFuture`, `WeatherChangesFuture` (macOS 15+), `HistoricalComparisonsFuture` (macOS 15+).
+
+See `examples/17_async_weather.rs` and `tests/async_api_tests.rs` for full usage.
 
 ## Highlights
 
