@@ -1,3 +1,5 @@
+//! Convenient WeatherKit weather re-exports.
+
 pub use crate::availability_kind::{
     AvailabilityKind, AvailabilityKindDescriptor, WeatherAvailability,
 };

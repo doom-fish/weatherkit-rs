@@ -1,46 +1,84 @@
+//! WeatherKit condition and precipitation enums.
+
 use serde::{Deserialize, Deserializer};
 
 use crate::error::WeatherKitError;
 use crate::ffi;
 use crate::private::parse_json_from_static;
 
+/// Represents the WeatherKit `WeatherCondition` value.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum WeatherCondition {
+    /// Matches the WeatherKit `Blizzard` case.
     Blizzard,
+    /// Matches the WeatherKit `BlowingDust` case.
     BlowingDust,
+    /// Matches the WeatherKit `BlowingSnow` case.
     BlowingSnow,
+    /// Matches the WeatherKit `Breezy` case.
     Breezy,
+    /// Matches the WeatherKit `Clear` case.
     Clear,
+    /// Matches the WeatherKit `Cloudy` case.
     Cloudy,
+    /// Matches the WeatherKit `Drizzle` case.
     Drizzle,
+    /// Matches the WeatherKit `Flurries` case.
     Flurries,
+    /// Matches the WeatherKit `Foggy` case.
     Foggy,
+    /// Matches the WeatherKit `FreezingDrizzle` case.
     FreezingDrizzle,
+    /// Matches the WeatherKit `FreezingRain` case.
     FreezingRain,
+    /// Matches the WeatherKit `Frigid` case.
     Frigid,
+    /// Matches the WeatherKit `Hail` case.
     Hail,
+    /// Matches the WeatherKit `Haze` case.
     Haze,
+    /// Matches the WeatherKit `HeavyRain` case.
     HeavyRain,
+    /// Matches the WeatherKit `HeavySnow` case.
     HeavySnow,
+    /// Matches the WeatherKit `Hot` case.
     Hot,
+    /// Matches the WeatherKit `Hurricane` case.
     Hurricane,
+    /// Matches the WeatherKit `IsolatedThunderstorms` case.
     IsolatedThunderstorms,
+    /// Matches the WeatherKit `MostlyClear` case.
     MostlyClear,
+    /// Matches the WeatherKit `MostlyCloudy` case.
     MostlyCloudy,
+    /// Matches the WeatherKit `PartlyCloudy` case.
     PartlyCloudy,
+    /// Matches the WeatherKit `Rain` case.
     Rain,
+    /// Matches the WeatherKit `ScatteredThunderstorms` case.
     ScatteredThunderstorms,
+    /// Matches the WeatherKit `Sleet` case.
     Sleet,
+    /// Matches the WeatherKit `Smoky` case.
     Smoky,
+    /// Matches the WeatherKit `Snow` case.
     Snow,
+    /// Matches the WeatherKit `StrongStorms` case.
     StrongStorms,
+    /// Matches the WeatherKit `SunFlurries` case.
     SunFlurries,
+    /// Matches the WeatherKit `SunShowers` case.
     SunShowers,
+    /// Matches the WeatherKit `Thunderstorms` case.
     Thunderstorms,
+    /// Matches the WeatherKit `TropicalStorm` case.
     TropicalStorm,
+    /// Matches the WeatherKit `Windy` case.
     Windy,
+    /// Matches the WeatherKit `WintryMix` case.
     WintryMix,
+    /// Stores an unrecognized WeatherKit case name.
     Unknown(String),
 }
 
@@ -85,6 +123,7 @@ impl WeatherCondition {
         }
     }
 
+    /// Returns the WeatherKit raw value for this case.
     pub fn raw_value(&self) -> &str {
         match self {
             Self::Blizzard => "blizzard",
@@ -125,6 +164,7 @@ impl WeatherCondition {
         }
     }
 
+    /// Returns the WeatherKit descriptor catalog for this enum.
     pub fn descriptors() -> Result<Vec<WeatherConditionDescriptor>, WeatherKitError> {
         parse_json_from_static(
             ffi::weather_condition::wk_weather_condition_copy_descriptors_json,
@@ -133,15 +173,23 @@ impl WeatherCondition {
     }
 }
 
+/// Represents the WeatherKit `Precipitation` value.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Precipitation {
+    /// Matches the WeatherKit `None` case.
     None,
+    /// Matches the WeatherKit `Hail` case.
     Hail,
+    /// Matches the WeatherKit `Mixed` case.
     Mixed,
+    /// Matches the WeatherKit `Rain` case.
     Rain,
+    /// Matches the WeatherKit `Sleet` case.
     Sleet,
+    /// Matches the WeatherKit `Snow` case.
     Snow,
+    /// Stores an unrecognized WeatherKit case name.
     Unknown(String),
 }
 
@@ -158,6 +206,7 @@ impl Precipitation {
         }
     }
 
+    /// Returns the WeatherKit raw value for this case.
     pub fn raw_value(&self) -> &str {
         match self {
             Self::None => "none",
@@ -170,6 +219,7 @@ impl Precipitation {
         }
     }
 
+    /// Returns the WeatherKit descriptor catalog for this enum.
     pub fn descriptors() -> Result<Vec<PrecipitationDescriptor>, WeatherKitError> {
         parse_json_from_static(
             ffi::weather_condition::wk_precipitation_copy_descriptors_json,
@@ -178,19 +228,27 @@ impl Precipitation {
     }
 }
 
+/// Describes a WeatherKit precipitation case.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrecipitationDescriptor {
+    /// Matches the WeatherKit raw value value.
     pub raw_value: String,
+    /// Matches the WeatherKit description value.
     pub description: String,
+    /// Matches the WeatherKit accessibility description value.
     pub accessibility_description: String,
 }
 
+/// Describes a WeatherKit weather condition case.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeatherConditionDescriptor {
+    /// Matches the WeatherKit raw value value.
     pub raw_value: String,
+    /// Matches the WeatherKit description value.
     pub description: String,
+    /// Matches the WeatherKit accessibility description value.
     pub accessibility_description: String,
 }
 

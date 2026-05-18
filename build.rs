@@ -1,3 +1,5 @@
+//! Build script for the `WeatherKit` Swift bridge.
+
 use std::env;
 use std::process::Command;
 

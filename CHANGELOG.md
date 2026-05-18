@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 - 2026-05-18
+
+### Documentation
+
+- Added concise Rustdoc coverage across the public WeatherKit wrapper surface outside `src/ffi/`, bringing public-item coverage to 100%.
+- Added module-level docs for the non-FFI WeatherKit modules and refreshed the crate release metadata for the doc pass.
+
 ## 0.3.1 - 2026-05-16
 
 ### Fixes

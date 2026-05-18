@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+//! Safe Rust bindings for WeatherKit.
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![allow(
     clippy::cargo_common_metadata,
@@ -22,6 +23,7 @@ pub mod changes;
 pub mod current_weather;
 pub mod daily_forecast;
 pub mod error;
+/// Low-level WeatherKit bridge bindings.
 pub mod ffi;
 pub mod hourly_forecast;
 pub mod minute_forecast;

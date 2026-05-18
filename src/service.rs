@@ -1,3 +1,5 @@
+//! WeatherKit service types and query helpers.
+
 use core::ffi::{c_char, c_void};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -26,14 +28,18 @@ use crate::sun_events::SunEvents;
 use crate::weather_alert::{alerts_from_owned_ptr, WeatherAlert};
 use crate::weather_attribution::WeatherAttribution;
 
+/// Represents a WeatherKit location coordinate.
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CLLocation {
+    /// Matches the WeatherKit latitude value.
     pub latitude: f64,
+    /// Matches the WeatherKit longitude value.
     pub longitude: f64,
 }
 
 impl CLLocation {
+    /// Creates a WeatherKit location value from latitude and longitude.
     pub const fn new(latitude: f64, longitude: f64) -> Self {
         Self {
             latitude,
@@ -64,13 +70,17 @@ impl CLLocation {
     }
 }
 
+/// Represents a WeatherKit date interval.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DateInterval {
+    /// Matches the WeatherKit start value.
     pub start: SystemTime,
+    /// Matches the WeatherKit end value.
     pub end: SystemTime,
 }
 
 impl DateInterval {
+    /// Creates a WeatherKit date interval after validating its bounds.
     pub fn new(start: SystemTime, end: SystemTime) -> Result<Self, WeatherKitError> {
         if start > end {
             return Err(WeatherKitError::bridge(
@@ -90,49 +100,80 @@ impl DateInterval {
     }
 }
 
+/// Represents WeatherKit response metadata.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeatherMetadata {
+    /// Matches the WeatherKit date value.
     pub date: String,
+    /// Matches the WeatherKit expiration date value.
     pub expiration_date: String,
+    /// Matches the WeatherKit location value.
     pub location: CLLocation,
 }
 
+/// Represents the aggregate WeatherKit weather payload.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Weather {
+    /// Matches the WeatherKit current weather value.
     pub current_weather: CurrentWeather,
+    /// Matches the WeatherKit hourly forecast value.
     pub hourly_forecast: Vec<crate::hourly_forecast::HourForecast>,
+    /// Matches the WeatherKit daily forecast value.
     pub daily_forecast: Vec<DayForecast>,
+    /// Matches the WeatherKit minute forecast value.
     pub minute_forecast: Option<Vec<crate::minute_forecast::MinuteForecast>>,
+    /// Matches the WeatherKit weather alerts value.
     #[serde(default)]
     pub weather_alerts: Vec<WeatherAlert>,
+    /// Matches the WeatherKit availability value.
     pub availability: WeatherAvailability,
 }
 
+/// Describes a WeatherKit query to fetch.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WeatherQuery {
+    /// Requests the WeatherKit current weather payload.
     Current,
+    /// Requests the WeatherKit minute forecast payload.
     Minute,
+    /// Requests the WeatherKit hourly forecast payload.
     Hourly,
+    /// Requests the WeatherKit hourly forecast for the supplied interval.
     HourlyIn(DateInterval),
+    /// Requests the WeatherKit daily forecast payload.
     Daily,
+    /// Requests the WeatherKit daily forecast for the supplied interval.
     DailyIn(DateInterval),
+    /// Requests the WeatherKit weather alerts payload.
     Alerts,
+    /// Requests the WeatherKit availability payload.
     Availability,
+    /// Requests the WeatherKit weather changes payload.
     Changes,
+    /// Requests the WeatherKit historical comparisons payload.
     HistoricalComparisons,
 }
 
+/// Wraps a WeatherKit query result.
 #[derive(Debug, Clone, PartialEq)]
 pub enum WeatherQueryResult {
+    /// Carries the WeatherKit current weather payload.
     CurrentWeather(Box<CurrentWeather>),
+    /// Carries the optional WeatherKit minute forecast payload.
     MinuteForecast(Option<Box<MinuteForecastCollection>>),
+    /// Carries the WeatherKit hourly forecast payload.
     HourlyForecast(Box<HourlyForecast>),
+    /// Carries the WeatherKit daily forecast payload.
     DailyForecast(Box<DailyForecast>),
+    /// Carries the WeatherKit weather alerts payload.
     WeatherAlerts(Vec<WeatherAlert>),
+    /// Carries the WeatherKit availability payload.
     Availability(Box<WeatherAvailability>),
+    /// Carries the optional WeatherKit weather changes payload.
     WeatherChanges(Option<Box<WeatherChanges>>),
+    /// Carries the optional WeatherKit historical comparisons payload.
     HistoricalComparisons(Option<Box<HistoricalComparisons>>),
 }
 
@@ -186,6 +227,7 @@ impl WeatherQuery {
     }
 }
 
+/// Wraps a WeatherKit service handle.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct WeatherService {
     kind: ServiceKind,
@@ -275,12 +317,14 @@ impl Drop for ServiceHandle {
 }
 
 impl WeatherService {
+    /// Returns a WeatherKit service that reuses the shared native service.
     pub const fn shared() -> Self {
         Self {
             kind: ServiceKind::Shared,
         }
     }
 
+    /// Returns a WeatherKit service with an owned native service handle.
     pub const fn new() -> Self {
         Self {
             kind: ServiceKind::Owned,
@@ -291,6 +335,7 @@ impl WeatherService {
         matches!(self.kind, ServiceKind::Owned)
     }
 
+    /// Fetches WeatherKit attribution information.
     pub fn attribution(&self) -> Result<WeatherAttribution, WeatherKitError> {
         let ptr = self.fetch_service_handle(
             ffi::service::wk_weather_service_attribution,
@@ -299,6 +344,7 @@ impl WeatherService {
         WeatherAttribution::from_owned_ptr(ptr)
     }
 
+    /// Fetches the aggregate WeatherKit weather payload.
     pub fn weather(&self, location: &CLLocation) -> Result<Weather, WeatherKitError> {
         let ptr = self.fetch_location_handle(
             location,
@@ -313,6 +359,7 @@ impl WeatherService {
         )
     }
 
+    /// Fetches the WeatherKit current weather payload.
     pub fn current_weather(
         &self,
         location: &CLLocation,
@@ -325,6 +372,7 @@ impl WeatherService {
         CurrentWeather::from_owned_ptr(ptr)
     }
 
+    /// Fetches the WeatherKit hourly forecast.
     pub fn hourly_forecast(
         &self,
         location: &CLLocation,
@@ -338,6 +386,7 @@ impl WeatherService {
         HourlyForecast::from_owned_ptr(ptr)
     }
 
+    /// Fetches the WeatherKit hourly forecast for the given interval.
     pub fn hourly_forecast_in(
         &self,
         location: &CLLocation,
@@ -352,6 +401,7 @@ impl WeatherService {
         HourlyForecast::from_owned_ptr(ptr)
     }
 
+    /// Fetches the WeatherKit daily forecast.
     pub fn daily_forecast(&self, location: &CLLocation) -> Result<DailyForecast, WeatherKitError> {
         let ptr = self.fetch_interval_handle(
             location,
@@ -362,6 +412,7 @@ impl WeatherService {
         DailyForecast::from_owned_ptr(ptr)
     }
 
+    /// Fetches the WeatherKit daily forecast for the given interval.
     pub fn daily_forecast_in(
         &self,
         location: &CLLocation,
@@ -376,6 +427,7 @@ impl WeatherService {
         DailyForecast::from_owned_ptr(ptr)
     }
 
+    /// Fetches the optional WeatherKit minute forecast.
     pub fn minute_forecast(
         &self,
         location: &CLLocation,
@@ -388,6 +440,7 @@ impl WeatherService {
         MinuteForecastCollection::option_from_owned_ptr(ptr)
     }
 
+    /// Fetches WeatherKit weather alerts.
     pub fn weather_alerts(
         &self,
         location: &CLLocation,
@@ -400,6 +453,7 @@ impl WeatherService {
         alerts_from_owned_ptr(ptr)
     }
 
+    /// Fetches WeatherKit data availability for the location.
     pub fn availability(
         &self,
         location: &CLLocation,
@@ -412,6 +466,7 @@ impl WeatherService {
         WeatherAvailability::from_owned_ptr(ptr)
     }
 
+    /// Fetches one WeatherKit query result.
     pub fn weather_including(
         &self,
         location: &CLLocation,
@@ -420,15 +475,20 @@ impl WeatherService {
         query.fetch(*self, location)
     }
 
+    /// Fetches 2 WeatherKit query results in order.
     pub fn weather_including2(
         &self,
         location: &CLLocation,
         query1: WeatherQuery,
         query2: WeatherQuery,
     ) -> Result<(WeatherQueryResult, WeatherQueryResult), WeatherKitError> {
-        Ok((query1.fetch(*self, location)?, query2.fetch(*self, location)?))
+        Ok((
+            query1.fetch(*self, location)?,
+            query2.fetch(*self, location)?,
+        ))
     }
 
+    /// Fetches 3 WeatherKit query results in order.
     pub fn weather_including3(
         &self,
         location: &CLLocation,
@@ -443,6 +503,7 @@ impl WeatherService {
         ))
     }
 
+    /// Fetches 4 WeatherKit query results in order.
     pub fn weather_including4(
         &self,
         location: &CLLocation,
@@ -467,6 +528,7 @@ impl WeatherService {
         ))
     }
 
+    /// Fetches 5 WeatherKit query results in order.
     pub fn weather_including5(
         &self,
         location: &CLLocation,
@@ -494,6 +556,7 @@ impl WeatherService {
         ))
     }
 
+    /// Fetches 6 WeatherKit query results in order.
     #[allow(clippy::too_many_arguments)]
     pub fn weather_including6(
         &self,
@@ -525,6 +588,7 @@ impl WeatherService {
         ))
     }
 
+    /// Fetches an arbitrary list of WeatherKit query results in order.
     pub fn weather_including_many<I>(
         &self,
         location: &CLLocation,
@@ -539,6 +603,7 @@ impl WeatherService {
             .collect()
     }
 
+    /// Fetches the optional WeatherKit weather changes payload.
     pub fn weather_changes(
         &self,
         location: &CLLocation,
@@ -551,6 +616,7 @@ impl WeatherService {
         WeatherChanges::option_from_owned_ptr(ptr)
     }
 
+    /// Fetches the optional WeatherKit historical comparisons payload.
     pub fn historical_comparisons(
         &self,
         location: &CLLocation,
@@ -563,6 +629,7 @@ impl WeatherService {
         HistoricalComparisons::option_from_owned_ptr(ptr)
     }
 
+    /// Fetches WeatherKit daily statistics for the requested query.
     pub fn daily_statistics(
         &self,
         location: &CLLocation,
@@ -571,6 +638,7 @@ impl WeatherService {
         self.daily_statistics_with_scope(location, query, QueryScope::None)
     }
 
+    /// Fetches WeatherKit daily statistics for the given interval.
     pub fn daily_statistics_in(
         &self,
         location: &CLLocation,
@@ -580,6 +648,7 @@ impl WeatherService {
         self.daily_statistics_with_scope(location, query, QueryScope::Interval(&interval))
     }
 
+    /// Fetches WeatherKit daily statistics for the given day range.
     pub fn daily_statistics_between_days(
         &self,
         location: &CLLocation,
@@ -597,6 +666,7 @@ impl WeatherService {
         )
     }
 
+    /// Fetches the WeatherKit daily summary for the requested query.
     pub fn daily_summary(
         &self,
         location: &CLLocation,
@@ -605,6 +675,7 @@ impl WeatherService {
         self.daily_summary_with_scope(location, query, QueryScope::None)
     }
 
+    /// Fetches the WeatherKit daily summary for the given interval.
     pub fn daily_summary_in(
         &self,
         location: &CLLocation,
@@ -614,6 +685,7 @@ impl WeatherService {
         self.daily_summary_with_scope(location, query, QueryScope::Interval(&interval))
     }
 
+    /// Fetches WeatherKit hourly statistics for the requested query.
     pub fn hourly_statistics(
         &self,
         location: &CLLocation,
@@ -622,6 +694,7 @@ impl WeatherService {
         self.hourly_statistics_with_scope(location, query, QueryScope::None)
     }
 
+    /// Fetches WeatherKit hourly statistics for the given interval.
     pub fn hourly_statistics_in(
         &self,
         location: &CLLocation,
@@ -631,6 +704,7 @@ impl WeatherService {
         self.hourly_statistics_with_scope(location, query, QueryScope::Interval(&interval))
     }
 
+    /// Fetches WeatherKit hourly statistics for the given hour range.
     pub fn hourly_statistics_between_hours(
         &self,
         location: &CLLocation,
@@ -648,6 +722,7 @@ impl WeatherService {
         )
     }
 
+    /// Fetches WeatherKit monthly statistics for the requested query.
     pub fn monthly_statistics(
         &self,
         location: &CLLocation,
@@ -656,6 +731,7 @@ impl WeatherService {
         self.monthly_statistics_with_scope(location, query, QueryScope::None)
     }
 
+    /// Fetches WeatherKit monthly statistics for the given interval.
     pub fn monthly_statistics_in(
         &self,
         location: &CLLocation,
@@ -665,6 +741,7 @@ impl WeatherService {
         self.monthly_statistics_with_scope(location, query, QueryScope::Interval(&interval))
     }
 
+    /// Fetches WeatherKit monthly statistics for the given month range.
     pub fn monthly_statistics_between_months(
         &self,
         location: &CLLocation,
@@ -682,6 +759,7 @@ impl WeatherService {
         )
     }
 
+    /// Returns today's WeatherKit sun events from the daily forecast.
     pub fn sun_events(&self, location: &CLLocation) -> Result<SunEvents, WeatherKitError> {
         let forecast = self.daily_forecast(location)?;
         forecast
@@ -691,6 +769,7 @@ impl WeatherService {
             .ok_or_else(|| WeatherKitError::bridge(-1, "daily forecast returned no days"))
     }
 
+    /// Returns today's WeatherKit moon events from the daily forecast.
     pub fn moon_events(&self, location: &CLLocation) -> Result<MoonEvents, WeatherKitError> {
         let forecast = self.daily_forecast(location)?;
         forecast
@@ -700,6 +779,7 @@ impl WeatherService {
             .ok_or_else(|| WeatherKitError::bridge(-1, "daily forecast returned no days"))
     }
 
+    /// Returns the current WeatherKit pressure reading.
     pub fn pressure(&self, location: &CLLocation) -> Result<Pressure, WeatherKitError> {
         Ok(self.current_weather(location)?.pressure_reading())
     }
@@ -718,14 +798,16 @@ impl WeatherService {
             "WeatherService.dailyStatistics",
         )?;
         match query {
-            DailyWeatherStatisticsQuery::Temperature => Ok(DailyWeatherStatisticsResult::Temperature(
-                DailyWeatherStatistics::<DayTemperatureStatistics>::from_owned_ptr(ptr)?,
-            )),
-            DailyWeatherStatisticsQuery::Precipitation => Ok(
-                DailyWeatherStatisticsResult::Precipitation(
+            DailyWeatherStatisticsQuery::Temperature => {
+                Ok(DailyWeatherStatisticsResult::Temperature(
+                    DailyWeatherStatistics::<DayTemperatureStatistics>::from_owned_ptr(ptr)?,
+                ))
+            }
+            DailyWeatherStatisticsQuery::Precipitation => {
+                Ok(DailyWeatherStatisticsResult::Precipitation(
                     DailyWeatherStatistics::<DayPrecipitationStatistics>::from_owned_ptr(ptr)?,
-                ),
-            ),
+                ))
+            }
         }
     }
 
@@ -746,11 +828,11 @@ impl WeatherService {
             DailyWeatherSummaryQuery::Temperature => Ok(DailyWeatherSummaryResult::Temperature(
                 DailyWeatherSummary::<DayTemperatureSummary>::from_owned_ptr(ptr)?,
             )),
-            DailyWeatherSummaryQuery::Precipitation => Ok(
-                DailyWeatherSummaryResult::Precipitation(
+            DailyWeatherSummaryQuery::Precipitation => {
+                Ok(DailyWeatherSummaryResult::Precipitation(
                     DailyWeatherSummary::<DayPrecipitationSummary>::from_owned_ptr(ptr)?,
-                ),
-            ),
+                ))
+            }
         }
     }
 
@@ -784,16 +866,16 @@ impl WeatherService {
             "WeatherService.monthlyStatistics",
         )?;
         match query {
-            MonthlyWeatherStatisticsQuery::Temperature => Ok(
-                MonthlyWeatherStatisticsResult::Temperature(
+            MonthlyWeatherStatisticsQuery::Temperature => {
+                Ok(MonthlyWeatherStatisticsResult::Temperature(
                     MonthlyWeatherStatistics::<MonthTemperatureStatistics>::from_owned_ptr(ptr)?,
-                ),
-            ),
-            MonthlyWeatherStatisticsQuery::Precipitation => Ok(
-                MonthlyWeatherStatisticsResult::Precipitation(
+                ))
+            }
+            MonthlyWeatherStatisticsQuery::Precipitation => {
+                Ok(MonthlyWeatherStatisticsResult::Precipitation(
                     MonthlyWeatherStatistics::<MonthPrecipitationStatistics>::from_owned_ptr(ptr)?,
-                ),
-            ),
+                ))
+            }
         }
     }
 
@@ -811,7 +893,9 @@ impl WeatherService {
         let mut out_error = core::ptr::null_mut();
         let (scope_kind, start_seconds, end_seconds, start_index, end_index) = match scope {
             QueryScope::None => (0, 0.0, 0.0, 0, 0),
-            QueryScope::Interval(interval) => (1, interval.start_seconds()?, interval.end_seconds()?, 0, 0),
+            QueryScope::Interval(interval) => {
+                (1, interval.start_seconds()?, interval.end_seconds()?, 0, 0)
+            }
             QueryScope::Index { start, end } => {
                 validate_index_range(start, end, context)?;
                 (2, 0.0, 0.0, start, end)
