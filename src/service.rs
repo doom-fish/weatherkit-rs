@@ -331,6 +331,7 @@ impl WeatherService {
         }
     }
 
+    #[cfg(feature = "async")]
     pub(crate) const fn is_owned(self) -> bool {
         matches!(self.kind, ServiceKind::Owned)
     }
