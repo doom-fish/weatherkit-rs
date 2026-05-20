@@ -51,12 +51,7 @@ impl Drop for OwnedHandle {
 }
 
 pub(crate) unsafe fn take_string(ptr: *mut c_char) -> Option<String> {
-    if ptr.is_null() {
-        return None;
-    }
-    let string = CStr::from_ptr(ptr).to_string_lossy().into_owned();
-    ffi::wk_string_free(ptr);
-    Some(string)
+    doom_fish_utils::ffi_string::take_owned_cstring_c(ptr, |p| ffi::wk_string_free(p))
 }
 
 pub(crate) fn parse_json_str<T: DeserializeOwned>(
