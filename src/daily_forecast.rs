@@ -19,17 +19,17 @@ use crate::weather_condition::{
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SnowfallAmount {
-    /// Matches the WeatherKit amount value.
+    /// Snowfall amount in metres; multiply by 1000 for millimetres.
     pub amount: f64,
-    /// Matches the WeatherKit maximum value.
+    /// Maximum snowfall amount in metres; multiply by 1000 for millimetres.
     pub maximum: f64,
-    /// Matches the WeatherKit minimum value.
+    /// Minimum snowfall amount in metres; multiply by 1000 for millimetres.
     pub minimum: f64,
-    /// Matches the WeatherKit amount liquid equivalent value.
+    /// Liquid-equivalent snowfall amount in metres; multiply by 1000 for millimetres.
     pub amount_liquid_equivalent: f64,
-    /// Matches the WeatherKit maximum liquid equivalent value.
+    /// Maximum liquid-equivalent snowfall amount in metres; multiply by 1000 for millimetres.
     pub maximum_liquid_equivalent: f64,
-    /// Matches the WeatherKit minimum liquid equivalent value.
+    /// Minimum liquid-equivalent snowfall amount in metres; multiply by 1000 for millimetres.
     pub minimum_liquid_equivalent: f64,
 }
 
@@ -37,15 +37,15 @@ pub struct SnowfallAmount {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrecipitationAmountByType {
-    /// Matches the WeatherKit hail value.
+    /// Hail amount in metres; multiply by 1000 for millimetres.
     pub hail: f64,
-    /// Matches the WeatherKit mixed value.
+    /// Mixed-precipitation amount in metres; multiply by 1000 for millimetres.
     pub mixed: f64,
-    /// Matches the WeatherKit rainfall value.
+    /// Rainfall amount in metres; multiply by 1000 for millimetres.
     pub rainfall: f64,
-    /// Matches the WeatherKit sleet value.
+    /// Sleet amount in metres; multiply by 1000 for millimetres.
     pub sleet: f64,
-    /// Matches the WeatherKit precipitation value.
+    /// Total precipitation amount in metres; multiply by 1000 for millimetres.
     pub precipitation: f64,
     /// Matches the WeatherKit snowfall amount value.
     pub snowfall_amount: SnowfallAmount,
@@ -55,7 +55,7 @@ pub struct PrecipitationAmountByType {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DayPartForecast {
-    /// Matches the WeatherKit cloud cover value.
+    /// Cloud cover as a fraction from 0 to 1.
     pub cloud_cover: f64,
     /// Matches the WeatherKit cloud cover by altitude value.
     #[serde(default)]
@@ -63,9 +63,9 @@ pub struct DayPartForecast {
     /// Matches the WeatherKit condition value.
     #[serde(deserialize_with = "deserialize_weather_condition")]
     pub condition: WeatherCondition,
-    /// Matches the WeatherKit high temperature value.
+    /// High temperature in degrees Celsius.
     pub high_temperature: f64,
-    /// Matches the WeatherKit low temperature value.
+    /// Low temperature in degrees Celsius.
     pub low_temperature: f64,
     /// Matches the WeatherKit precipitation value.
     #[serde(deserialize_with = "deserialize_precipitation")]
@@ -73,23 +73,23 @@ pub struct DayPartForecast {
     /// Matches the WeatherKit precipitation amount by type value.
     #[serde(default)]
     pub precipitation_amount_by_type: Option<PrecipitationAmountByType>,
-    /// Matches the WeatherKit precipitation chance value.
+    /// Chance of precipitation as a fraction from 0 to 1.
     pub precipitation_chance: f64,
-    /// Matches the WeatherKit maximum humidity value.
+    /// Maximum relative humidity as a fraction from 0 to 1.
     #[serde(default)]
     pub maximum_humidity: Option<f64>,
-    /// Matches the WeatherKit minimum humidity value.
+    /// Minimum relative humidity as a fraction from 0 to 1.
     #[serde(default)]
     pub minimum_humidity: Option<f64>,
-    /// Matches the WeatherKit maximum visibility value.
+    /// Maximum visibility in metres.
     #[serde(default)]
     pub maximum_visibility: Option<f64>,
-    /// Matches the WeatherKit minimum visibility value.
+    /// Minimum visibility in metres.
     #[serde(default)]
     pub minimum_visibility: Option<f64>,
     /// Matches the WeatherKit wind value.
     pub wind: Wind,
-    /// Matches the WeatherKit high wind speed value.
+    /// Highest wind speed in metres per second.
     #[serde(default)]
     pub high_wind_speed: Option<f64>,
 }
@@ -100,9 +100,9 @@ pub struct DayPartForecast {
 pub struct DayForecast {
     /// Matches the WeatherKit date value.
     pub date: String,
-    /// Matches the WeatherKit high temperature value.
+    /// High temperature in degrees Celsius.
     pub high_temperature: f64,
-    /// Matches the WeatherKit low temperature value.
+    /// Low temperature in degrees Celsius.
     pub low_temperature: f64,
     /// Matches the WeatherKit condition value.
     #[serde(deserialize_with = "deserialize_weather_condition")]
@@ -112,13 +112,13 @@ pub struct DayForecast {
     /// Matches the WeatherKit precipitation value.
     #[serde(deserialize_with = "deserialize_precipitation")]
     pub precipitation: Precipitation,
-    /// Matches the WeatherKit precipitation chance value.
+    /// Chance of precipitation as a fraction from 0 to 1.
     pub precipitation_chance: f64,
-    /// Matches the WeatherKit precipitation amount value.
+    /// Precipitation amount in metres; multiply by 1000 for millimetres.
     pub precipitation_amount: f64,
-    /// Matches the WeatherKit rainfall amount value.
+    /// Rainfall amount in metres; multiply by 1000 for millimetres.
     pub rainfall_amount: f64,
-    /// Matches the WeatherKit snowfall amount value.
+    /// Snowfall amount in metres; multiply by 1000 for millimetres.
     pub snowfall_amount: f64,
     /// Matches the WeatherKit sun value.
     pub sun: SunEvents,
@@ -134,22 +134,22 @@ pub struct DayForecast {
     /// Matches the WeatherKit low temperature time value.
     #[serde(default)]
     pub low_temperature_time: Option<String>,
-    /// Matches the WeatherKit maximum humidity value.
+    /// Maximum relative humidity as a fraction from 0 to 1.
     #[serde(default)]
     pub maximum_humidity: Option<f64>,
-    /// Matches the WeatherKit minimum humidity value.
+    /// Minimum relative humidity as a fraction from 0 to 1.
     #[serde(default)]
     pub minimum_humidity: Option<f64>,
     /// Matches the WeatherKit precipitation amount by type value.
     #[serde(default)]
     pub precipitation_amount_by_type: Option<PrecipitationAmountByType>,
-    /// Matches the WeatherKit maximum visibility value.
+    /// Maximum visibility, passed through unchanged from WeatherKit's unitless `Double` (unlike `DayPartForecast`, which is in metres).
     #[serde(default)]
     pub maximum_visibility: Option<f64>,
-    /// Matches the WeatherKit minimum visibility value.
+    /// Minimum visibility, passed through unchanged from WeatherKit's unitless `Double` (unlike `DayPartForecast`, which is in metres).
     #[serde(default)]
     pub minimum_visibility: Option<f64>,
-    /// Matches the WeatherKit high wind speed value.
+    /// Highest wind speed in metres per second.
     #[serde(default)]
     pub high_wind_speed: Option<f64>,
     /// Matches the WeatherKit daytime forecast value.

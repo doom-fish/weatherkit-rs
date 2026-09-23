@@ -60,9 +60,28 @@ See `examples/17_async_weather.rs` and `tests/async_api_tests.rs` for full usage
 - Descriptor catalogs for `WeatherAttribution`, `WeatherSeverity`, `AvailabilityKind`, `WeatherCondition`, `Precipitation`, `PressureTrend`, `MoonPhase`, `WindCompassDirection`, `UVExposureCategory`, and `WeatherError`
 - Async Swift APIs bridged to synchronous Rust via `DispatchSemaphore + Task`, with opaque handle ownership released on the Rust side
 
-## Entitlements / caveats
+## Entitlements, attribution and caveats
 
-WeatherKit usually requires an entitled bundle ID backed by a paid Apple Developer membership. Unsigned CLI binaries often fail with permission or bundle-configuration errors; every example in `examples/` treats that as a caveat instead of a hard failure.
+- WeatherKit only answers apps signed with the `com.apple.developer.weatherkit` entitlement. Register the App ID with the WeatherKit capability (and the WeatherKit App Service) in Certificates, Identifiers & Profiles, then sign the app bundle with a provisioning profile that includes the entitlement. This needs a paid Apple Developer Program membership.
+- Unsigned or ad-hoc-signed binaries, including `cargo run --example …`, usually fail with a permission or bundle-configuration error. `WeatherKitError::is_entitlement_issue()` detects that case, and every example in `examples/` treats it as a caveat instead of a hard failure.
+- Apple requires apps that show WeatherKit data to display the Apple Weather mark and a link to the legal attribution page wherever that data appears. `WeatherService::attribution()` returns both: `combined_mark_light_url` / `combined_mark_dark_url` (or `square_mark_url`) and `legal_page_url`.
+
+## Units
+
+The Swift bridge converts every WeatherKit `Measurement` to a fixed SI unit before it reaches Rust, so the `f64` fields are not in the units WeatherKit's own formatters show:
+
+| Quantity | Unit in this crate |
+| --- | --- |
+| Temperatures, including trends and percentiles | degrees Celsius |
+| Pressure | hectopascals (millibars) |
+| Precipitation, rainfall, snowfall, sleet and hail amounts | metres (×1000 for millimetres) |
+| Precipitation intensity | metres per second (×3 600 000 for millimetres per hour) |
+| Visibility | metres |
+| Wind speed, gusts and highest wind speed | metres per second |
+| Wind direction | degrees |
+| Humidity, cloud cover, precipitation chance and probability | fraction from 0 to 1 |
+
+`DayForecast::maximum_visibility` and `minimum_visibility` are the exception: WeatherKit exposes them as plain `Double` values, and they pass through unchanged.
 
 ## Examples
 

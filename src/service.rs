@@ -336,7 +336,8 @@ impl WeatherService {
         matches!(self.kind, ServiceKind::Owned)
     }
 
-    /// Fetches WeatherKit attribution information.
+    /// Fetches the Apple Weather attribution that must be displayed, with a
+    /// link to its legal page, wherever WeatherKit data is shown.
     pub fn attribution(&self) -> Result<WeatherAttribution, WeatherKitError> {
         let ptr = self.fetch_service_handle(
             ffi::service::wk_weather_service_attribution,

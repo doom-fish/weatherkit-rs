@@ -9,11 +9,11 @@ use crate::ffi;
 use crate::private::parse_json_from_handle;
 use crate::service::WeatherMetadata;
 
-/// Marks WeatherKit temperature-based trend values.
+/// Marks WeatherKit temperature values, which this crate reports in degrees Celsius.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TemperatureUnit {}
 
-/// Marks WeatherKit precipitation- and snowfall-based length values.
+/// Marks WeatherKit precipitation and snowfall lengths, which this crate reports in metres.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LengthUnit {}
 
@@ -74,7 +74,7 @@ pub struct TrendBaseline<Unit> {
     /// Matches the WeatherKit kind value.
     #[serde(deserialize_with = "deserialize_trend_baseline_kind")]
     pub kind: TrendBaselineKind,
-    /// Matches the WeatherKit value value.
+    /// Baseline value: degrees Celsius for `TemperatureUnit` trends, metres for `LengthUnit` trends.
     pub value: f64,
     /// Matches the WeatherKit start date value.
     pub start_date: String,
@@ -88,7 +88,7 @@ pub struct TrendBaseline<Unit> {
 pub struct Trend<Unit> {
     /// Matches the WeatherKit baseline value.
     pub baseline: TrendBaseline<Unit>,
-    /// Matches the WeatherKit current value value.
+    /// Current value: degrees Celsius for `TemperatureUnit` trends, metres for `LengthUnit` trends.
     pub current_value: f64,
     /// Matches the WeatherKit deviation value.
     #[serde(deserialize_with = "deserialize_deviation")]
@@ -101,11 +101,11 @@ pub struct Trend<Unit> {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase", bound(deserialize = ""))]
 pub struct Percentiles<Unit> {
-    /// Matches the WeatherKit p10 value.
+    /// 10th-percentile value in degrees Celsius (the bridge only produces temperature percentiles).
     pub p10: f64,
-    /// Matches the WeatherKit p50 value.
+    /// 50th-percentile value in degrees Celsius (the bridge only produces temperature percentiles).
     pub p50: f64,
-    /// Matches the WeatherKit p90 value.
+    /// 90th-percentile value in degrees Celsius (the bridge only produces temperature percentiles).
     pub p90: f64,
     #[serde(skip)]
     marker: PhantomData<Unit>,

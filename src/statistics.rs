@@ -85,9 +85,9 @@ impl MonthlyWeatherStatisticsQuery {
 pub struct DayTemperatureStatistics {
     /// Matches the WeatherKit day value.
     pub day: i64,
-    /// Matches the WeatherKit average low temperature value.
+    /// Average low temperature in degrees Celsius.
     pub average_low_temperature: f64,
-    /// Matches the WeatherKit average high temperature value.
+    /// Average high temperature in degrees Celsius.
     pub average_high_temperature: f64,
 }
 
@@ -97,11 +97,11 @@ pub struct DayTemperatureStatistics {
 pub struct DayPrecipitationStatistics {
     /// Matches the WeatherKit day value.
     pub day: i64,
-    /// Matches the WeatherKit average precipitation probability value.
+    /// Average probability of precipitation as a fraction from 0 to 1.
     pub average_precipitation_probability: f64,
-    /// Matches the WeatherKit average precipitation amount value.
+    /// Average precipitation amount in metres; multiply by 1000 for millimetres.
     pub average_precipitation_amount: f64,
-    /// Matches the WeatherKit average snowfall amount value.
+    /// Average snowfall amount in metres; multiply by 1000 for millimetres.
     pub average_snowfall_amount: f64,
 }
 
@@ -121,9 +121,9 @@ pub struct HourTemperatureStatistics {
 pub struct MonthTemperatureStatistics {
     /// Matches the WeatherKit month value.
     pub month: i64,
-    /// Matches the WeatherKit average low temperature value.
+    /// Average low temperature in degrees Celsius.
     pub average_low_temperature: f64,
-    /// Matches the WeatherKit average high temperature value.
+    /// Average high temperature in degrees Celsius.
     pub average_high_temperature: f64,
 }
 
@@ -133,11 +133,11 @@ pub struct MonthTemperatureStatistics {
 pub struct MonthPrecipitationStatistics {
     /// Matches the WeatherKit month value.
     pub month: i64,
-    /// Matches the WeatherKit average precipitation probability value.
+    /// Average probability of precipitation as a fraction from 0 to 1.
     pub average_precipitation_probability: f64,
-    /// Matches the WeatherKit average precipitation amount value.
+    /// Average precipitation amount in metres; multiply by 1000 for millimetres.
     pub average_precipitation_amount: f64,
-    /// Matches the WeatherKit average snowfall amount value.
+    /// Average snowfall amount in metres; multiply by 1000 for millimetres.
     pub average_snowfall_amount: f64,
 }
 
@@ -147,9 +147,9 @@ pub struct MonthPrecipitationStatistics {
 pub struct DayTemperatureSummary {
     /// Matches the WeatherKit date value.
     pub date: String,
-    /// Matches the WeatherKit low temperature value.
+    /// Low temperature in degrees Celsius.
     pub low_temperature: f64,
-    /// Matches the WeatherKit high temperature value.
+    /// High temperature in degrees Celsius.
     pub high_temperature: f64,
 }
 
@@ -159,9 +159,9 @@ pub struct DayTemperatureSummary {
 pub struct DayPrecipitationSummary {
     /// Matches the WeatherKit date value.
     pub date: String,
-    /// Matches the WeatherKit precipitation amount value.
+    /// Precipitation amount in metres; multiply by 1000 for millimetres.
     pub precipitation_amount: f64,
-    /// Matches the WeatherKit snowfall amount value.
+    /// Snowfall amount in metres; multiply by 1000 for millimetres.
     pub snowfall_amount: f64,
 }
 

@@ -52,7 +52,7 @@ impl PressureTrend {
 /// Represents a WeatherKit pressure reading.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Pressure {
-    /// Matches the WeatherKit value value.
+    /// Sea-level air pressure in hectopascals (millibars).
     pub value: f64,
     /// Matches the WeatherKit trend value.
     pub trend: PressureTrend,

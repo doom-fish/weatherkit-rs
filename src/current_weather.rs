@@ -15,11 +15,11 @@ use crate::weather_condition::{deserialize_weather_condition, WeatherCondition};
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CloudCoverByAltitude {
-    /// Matches the WeatherKit low value.
+    /// Low-altitude cloud cover as a fraction from 0 to 1.
     pub low: f64,
-    /// Matches the WeatherKit medium value.
+    /// Medium-altitude cloud cover as a fraction from 0 to 1.
     pub medium: f64,
-    /// Matches the WeatherKit high value.
+    /// High-altitude cloud cover as a fraction from 0 to 1.
     pub high: f64,
 }
 
@@ -136,13 +136,13 @@ pub struct WindCompassDirectionDescriptor {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Wind {
-    /// Matches the WeatherKit speed value.
+    /// Wind speed in metres per second.
     pub speed: f64,
-    /// Matches the WeatherKit direction value.
+    /// Wind direction in degrees.
     pub direction: f64,
     /// Matches the WeatherKit compass direction value.
     pub compass_direction: String,
-    /// Matches the WeatherKit gust value.
+    /// Wind gust speed in metres per second, when WeatherKit reports one.
     pub gust: Option<f64>,
 }
 
@@ -243,15 +243,15 @@ impl UVIndex {
 pub struct CurrentWeather {
     /// Matches the WeatherKit date value.
     pub date: String,
-    /// Matches the WeatherKit temperature value.
+    /// Air temperature in degrees Celsius.
     pub temperature: f64,
-    /// Matches the WeatherKit feels like value.
+    /// Apparent (feels-like) temperature in degrees Celsius.
     pub feels_like: f64,
-    /// Matches the WeatherKit humidity value.
+    /// Relative humidity as a fraction from 0 to 1.
     pub humidity: f64,
-    /// Matches the WeatherKit dew point value.
+    /// Dew point in degrees Celsius.
     pub dew_point: f64,
-    /// Matches the WeatherKit pressure value.
+    /// Sea-level air pressure in hectopascals (millibars).
     pub pressure: f64,
     /// Matches the WeatherKit pressure trend value.
     #[serde(deserialize_with = "deserialize_pressure_trend")]
@@ -265,16 +265,16 @@ pub struct CurrentWeather {
     pub wind: Wind,
     /// Matches the WeatherKit uv index value.
     pub uv_index: UVIndex,
-    /// Matches the WeatherKit visibility value.
+    /// Visibility in metres.
     pub visibility: f64,
-    /// Matches the WeatherKit cloud cover value.
+    /// Cloud cover as a fraction from 0 to 1.
     pub cloud_cover: f64,
     /// Matches the WeatherKit cloud cover by altitude value.
     #[serde(default)]
     pub cloud_cover_by_altitude: Option<CloudCoverByAltitude>,
     /// Matches the WeatherKit is daylight value.
     pub is_daylight: bool,
-    /// Matches the WeatherKit precipitation intensity value.
+    /// Precipitation intensity in metres per second; multiply by 3 600 000 for millimetres per hour.
     pub precipitation_intensity: f64,
     /// Matches the WeatherKit metadata value.
     pub metadata: WeatherMetadata,

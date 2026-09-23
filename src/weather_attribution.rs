@@ -9,6 +9,11 @@ use crate::ffi;
 use crate::private::parse_json_from_handle;
 
 /// Represents WeatherKit attribution metadata.
+///
+/// Apple's WeatherKit terms require every app that shows WeatherKit data to
+/// display the Apple Weather mark (`combined_mark_light_url`,
+/// `combined_mark_dark_url` or `square_mark_url`) together with a link to
+/// `legal_page_url` wherever that data appears.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeatherAttribution {

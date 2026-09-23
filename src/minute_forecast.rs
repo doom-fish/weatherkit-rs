@@ -19,9 +19,9 @@ pub struct MinuteForecast {
     /// Matches the WeatherKit precipitation value.
     #[serde(deserialize_with = "deserialize_precipitation")]
     pub precipitation: Precipitation,
-    /// Matches the WeatherKit precipitation chance value.
+    /// Chance of precipitation as a fraction from 0 to 1.
     pub precipitation_chance: f64,
-    /// Matches the WeatherKit precipitation intensity value.
+    /// Precipitation intensity in metres per second; multiply by 3 600 000 for millimetres per hour.
     pub precipitation_intensity: f64,
 }
 

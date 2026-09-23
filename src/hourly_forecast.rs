@@ -20,9 +20,9 @@ use crate::weather_condition::{
 pub struct HourForecast {
     /// Matches the WeatherKit date value.
     pub date: String,
-    /// Matches the WeatherKit temperature value.
+    /// Air temperature in degrees Celsius.
     pub temperature: f64,
-    /// Matches the WeatherKit feels like value.
+    /// Apparent (feels-like) temperature in degrees Celsius.
     pub feels_like: f64,
     /// Matches the WeatherKit condition value.
     #[serde(deserialize_with = "deserialize_weather_condition")]
@@ -32,30 +32,30 @@ pub struct HourForecast {
     /// Matches the WeatherKit precipitation value.
     #[serde(deserialize_with = "deserialize_precipitation")]
     pub precipitation: Precipitation,
-    /// Matches the WeatherKit precipitation chance value.
+    /// Chance of precipitation as a fraction from 0 to 1.
     pub precipitation_chance: f64,
-    /// Matches the WeatherKit precipitation amount value.
+    /// Precipitation amount in metres; multiply by 1000 for millimetres.
     pub precipitation_amount: f64,
-    /// Matches the WeatherKit cloud cover value.
+    /// Cloud cover as a fraction from 0 to 1.
     pub cloud_cover: f64,
-    /// Matches the WeatherKit dew point value.
+    /// Dew point in degrees Celsius.
     pub dew_point: f64,
-    /// Matches the WeatherKit humidity value.
+    /// Relative humidity as a fraction from 0 to 1.
     pub humidity: f64,
     /// Matches the WeatherKit is daylight value.
     pub is_daylight: bool,
-    /// Matches the WeatherKit pressure value.
+    /// Sea-level air pressure in hectopascals (millibars).
     pub pressure: f64,
     /// Matches the WeatherKit pressure trend value.
     #[serde(deserialize_with = "deserialize_pressure_trend")]
     pub pressure_trend: PressureTrend,
     /// Matches the WeatherKit uv index value.
     pub uv_index: UVIndex,
-    /// Matches the WeatherKit visibility value.
+    /// Visibility in metres.
     pub visibility: f64,
     /// Matches the WeatherKit wind value.
     pub wind: Wind,
-    /// Matches the WeatherKit snowfall amount value.
+    /// Snowfall amount in metres; multiply by 1000 for millimetres.
     #[serde(default)]
     pub snowfall_amount: Option<f64>,
     /// Matches the WeatherKit cloud cover by altitude value.
