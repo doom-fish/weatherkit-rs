@@ -916,8 +916,8 @@ impl WeatherService {
                 end_seconds,
                 start_index,
                 end_index,
-                &mut out_handle,
-                &mut out_error,
+                &raw mut out_handle,
+                &raw mut out_error,
             )
         };
         if status != ffi::status::OK {
@@ -944,7 +944,7 @@ impl WeatherService {
         let mut out_error = core::ptr::null_mut();
         // SAFETY: service.as_ptr() is a valid retained handle; out_handle and
         // out_error are valid stack-allocated output pointers.
-        let status = unsafe { call(service.as_ptr(), &mut out_handle, &mut out_error) };
+        let status = unsafe { call(service.as_ptr(), &raw mut out_handle, &raw mut out_error) };
         if status != ffi::status::OK {
             // SAFETY: error_from_status takes ownership of the C string and frees it.
             return Err(unsafe { error_from_status(status, out_error) });
@@ -975,8 +975,8 @@ impl WeatherService {
                 service.as_ptr(),
                 location.latitude,
                 location.longitude,
-                &mut out_handle,
-                &mut out_error,
+                &raw mut out_handle,
+                &raw mut out_error,
             )
         };
         if status != ffi::status::OK {
@@ -1018,8 +1018,8 @@ impl WeatherService {
                 has_range,
                 start_seconds,
                 end_seconds,
-                &mut out_handle,
-                &mut out_error,
+                &raw mut out_handle,
+                &raw mut out_error,
             )
         };
         if status != ffi::status::OK {

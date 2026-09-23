@@ -112,7 +112,7 @@ pub(crate) fn parse_json_from_handle<T: DeserializeOwned>(
     let handle = unsafe { OwnedHandle::new(ptr, release, context)? };
     let mut out_json = core::ptr::null_mut();
     let mut out_error = core::ptr::null_mut();
-    let status = unsafe { copy_json(handle.as_ptr(), &mut out_json, &mut out_error) };
+    let status = unsafe { copy_json(handle.as_ptr(), &raw mut out_json, &raw mut out_error) };
     if status != ffi::status::OK {
         return Err(unsafe { error_from_status(status, out_error) });
     }
@@ -125,7 +125,7 @@ pub(crate) fn parse_json_from_static<T: DeserializeOwned>(
 ) -> Result<T, WeatherKitError> {
     let mut out_json = core::ptr::null_mut();
     let mut out_error = core::ptr::null_mut();
-    let status = unsafe { copy_json(&mut out_json, &mut out_error) };
+    let status = unsafe { copy_json(&raw mut out_json, &raw mut out_error) };
     if status != ffi::status::OK {
         return Err(unsafe { error_from_status(status, out_error) });
     }
