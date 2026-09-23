@@ -2,6 +2,8 @@
 
 Audited against `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/System/Library/Frameworks/WeatherKit.framework/Modules/WeatherKit.swiftmodule/arm64e-apple-macos.swiftinterface`.
 
+The MacOSX26.2.sdk this audit was generated from is no longer installed. The macOS 26.5 and 27.0 WeatherKit interfaces declare the same API, so the counts still apply. The percentage is measured over swiftinterface symbols: EXEMPT counts synthesized protocol witnesses, typealiases and three deprecated `DayWeather` accessors, not unwrapped API.
+
 Methodology:
 - Enumerated public symbols from the macOS WeatherKit swiftinterface.
 - Counted Swift protocol witness helpers (e.g. Codable/Equatable/Collection glue and public typealiases) as **EXEMPT** rather than gaps.

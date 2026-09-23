@@ -8,6 +8,8 @@ COVERAGE_PCT: 100.00%
 
 ## Methodology
 
+The MacOSX26.2.sdk this audit was generated from is no longer installed. The macOS 26.5 and 27.0 WeatherKit interfaces declare the same API, so the counts still apply. The percentage is measured over swiftinterface symbols: EXEMPT counts synthesized protocol witnesses, typealiases and three deprecated `DayWeather` accessors, not unwrapped API.
+
 This v2 audit re-verifies the v1 audit with strict standards for EXEMPT classifications. All public symbols were enumerated from the macOS WeatherKit.swiftinterface (`arm64e-apple-macos.swiftinterface`). EXEMPT entries were re-verified to ensure they have SDK availability attributes or are synthetic protocol witness helpers (Codable, Equatable, Collection glue) that inherit availability from their parent types. The three macOS-deprecated DayWeather precipitation accessors (precipitationAmount, rainfallAmount, snowfallAmount) are retained as EXEMPT per their explicit @available deprecation attributes. All 180 EXEMPT entries are properly cited with either explicit SDK availability attributes or documented protocol-witness/typealias justifications.
 
 ## 🟢 VERIFIED
