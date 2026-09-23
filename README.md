@@ -4,7 +4,12 @@ Safe Rust bindings for Apple's [WeatherKit](https://developer.apple.com/document
 
 The published package is `weatherkit-doomfish`; the Rust library crate is imported as `weatherkit`.
 
-> **Status:** v0.3.0 covers the full non-exempt macOS WeatherKit surface, including WeatherService multi-query helpers, statistics/summaries, weather changes, historical comparisons, enum descriptor catalogs, and an executor-agnostic async API.
+> **Status:** v0.4.0 covers the non-exempt macOS WeatherKit surface (checked against the macOS 26.5 and 27.0 SDKs), including WeatherService multi-query helpers, statistics/summaries, weather changes, historical comparisons, enum descriptor catalogs, and an executor-agnostic async API.
+
+```toml
+[dependencies]
+weatherkit-doomfish = "0.4"
+```
 
 ## Quick start
 

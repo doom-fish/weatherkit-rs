@@ -1,5 +1,37 @@
 # Changelog
 
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.4.0] - Unreleased
+
+### Changed
+
+- **Breaking:** the minimum supported Rust version is now 1.82 (was 1.76).
+- `doom-fish-utils` requirement is now `>=0.4.1, <0.5`.
+
+### Fixed
+
+- Value fields now document the SI unit the bridge converts to: degrees
+  Celsius, hectopascals, metres, metres per second, degrees, or a fraction
+  from 0 to 1. Precipitation amounts are in metres and precipitation
+  intensity is in metres per second, not millimetres or millimetres per hour.
+  The README has a Units table. `DayForecast::maximum_visibility` and
+  `minimum_visibility` are documented as WeatherKit's unitless value passed
+  through unchanged.
+- `WeatherAttribution`, `WeatherService::attribution` and the README now state
+  Apple's requirement to show the Apple Weather mark and a link to the legal
+  attribution page wherever WeatherKit data appears.
+- The README names the `com.apple.developer.weatherkit` entitlement and the
+  App ID capability it depends on.
+- `COVERAGE.md` no longer lists the implemented macOS 15 statistics,
+  summaries, weather changes, historical comparisons, trend types and
+  `WeatherError` as deferred. The coverage audits say which SDK they were
+  generated from and what their percentage measures.
+- The statistics smoke test checks the values it receives.
+
 ## [0.3.6] - 2026-05-20
 
 - Migrated local `take_string` body to call `doom_fish_utils::ffi_string::take_owned_cstring_c`. Centralises the duplicated FFI take-string pattern fleet-wide. No public API change.
