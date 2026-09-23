@@ -18,6 +18,10 @@ type HourlyStatsRangeFn = fn(
     HourlyWeatherStatisticsQuery,
 ) -> Result<HourlyWeatherStatistics<HourTemperatureStatistics>, WeatherKitError>;
 
+fn plausible_celsius(value: f64) -> bool {
+    (-90.0..=60.0).contains(&value)
+}
+
 fn sample_interval(days: u64) -> DateInterval {
     let start = SystemTime::now();
     let end = start + Duration::from_secs(days * 24 * 60 * 60);
@@ -73,7 +77,12 @@ fn weather_statistics_and_summaries_smoke_or_entitlement() {
         DailyWeatherStatisticsQuery::Temperature,
     ));
     if let Some(DailyWeatherStatisticsResult::Temperature(stats)) = daily {
-        let _ = stats.iter().next();
+        assert_eq!(stats.iter().count(), stats.len());
+        for day in &stats {
+            assert!(plausible_celsius(day.average_low_temperature));
+            assert!(plausible_celsius(day.average_high_temperature));
+            assert!(day.average_low_temperature <= day.average_high_temperature);
+        }
     }
 
     let summary = common::entitlement_ok(service.daily_summary(
@@ -81,7 +90,11 @@ fn weather_statistics_and_summaries_smoke_or_entitlement() {
         DailyWeatherSummaryQuery::Temperature,
     ));
     if let Some(DailyWeatherSummaryResult::Temperature(days)) = summary {
-        let _ = days.iter().next();
+        for day in &days {
+            assert!(plausible_celsius(day.low_temperature));
+            assert!(plausible_celsius(day.high_temperature));
+            assert!(day.low_temperature <= day.high_temperature);
+        }
     }
 
     let hourly = common::entitlement_ok(service.hourly_statistics(
@@ -89,7 +102,12 @@ fn weather_statistics_and_summaries_smoke_or_entitlement() {
         HourlyWeatherStatisticsQuery::Temperature,
     ));
     if let Some(stats) = hourly {
-        let _ = stats.iter().next();
+        for hour in &stats {
+            let percentiles = &hour.percentiles;
+            assert!(plausible_celsius(percentiles.p10));
+            assert!(plausible_celsius(percentiles.p90));
+            assert!(percentiles.p10 <= percentiles.p50 && percentiles.p50 <= percentiles.p90);
+        }
     }
 
     let monthly = common::entitlement_ok(service.monthly_statistics(
@@ -97,6 +115,9 @@ fn weather_statistics_and_summaries_smoke_or_entitlement() {
         MonthlyWeatherStatisticsQuery::Temperature,
     ));
     if let Some(MonthlyWeatherStatisticsResult::Temperature(stats)) = monthly {
-        let _ = stats.iter().next();
+        for month in &stats {
+            assert!(plausible_celsius(month.average_low_temperature));
+            assert!(month.average_low_temperature <= month.average_high_temperature);
+        }
     }
 }
