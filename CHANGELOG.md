@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `WeatherError` as deferred. The coverage audits say which SDK they were
   generated from and what their percentage measures.
 - The statistics smoke test checks the values it receives.
+- `build.rs` no longer adds the toolchain's Swift 5.5 back-deployment
+  directory (`usr/lib/swift-5.5/macosx`) to the rpath of the crate's tests and
+  examples. The rpath pointed into Xcode, so it never made back-deployment
+  work on other machines; `libswift_Concurrency` resolves through
+  `/usr/lib/swift`.
 
 ## [0.3.6] - 2026-05-20
 
