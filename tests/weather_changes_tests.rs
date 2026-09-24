@@ -4,6 +4,11 @@ use weatherkit::prelude::*;
 
 #[test]
 fn weather_changes_and_historical_comparisons_smoke_or_entitlement() {
+    if !common::live_tests_enabled(
+        "weather_changes_and_historical_comparisons_smoke_or_entitlement",
+    ) {
+        return;
+    }
     let service = WeatherService::shared();
     let location = common::sample_location();
 

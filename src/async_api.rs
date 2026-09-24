@@ -569,7 +569,10 @@ impl AsyncWeatherService {
     // (and its associated guard) is dropped.
     // -----------------------------------------------------------------------
 
-    fn service_ptr(self) -> Result<*mut c_void, WeatherKitError> {
+    fn service_ptr(self, location: Option<&CLLocation>) -> Result<*mut c_void, WeatherKitError> {
+        if let Some(location) = location {
+            location.validate()?;
+        }
         acquire_service_ptr(self.inner)
     }
 
@@ -585,7 +588,7 @@ impl AsyncWeatherService {
     /// Returns a [`WeatherKitError`] if the app lacks a valid WeatherKit
     /// entitlement or if the network request fails.
     pub fn weather(&self, location: &CLLocation) -> WeatherFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -610,7 +613,7 @@ impl AsyncWeatherService {
     ///
     /// Wraps `WeatherService.weather(for: including: .current) async throws`.
     pub fn current_weather(&self, location: &CLLocation) -> CurrentWeatherFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -654,7 +657,7 @@ impl AsyncWeatherService {
         location: &CLLocation,
         interval: Option<DateInterval>,
     ) -> HourlyForecastFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -704,7 +707,7 @@ impl AsyncWeatherService {
         location: &CLLocation,
         interval: Option<DateInterval>,
     ) -> DailyForecastFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -737,7 +740,7 @@ impl AsyncWeatherService {
     ///
     /// Returns `None` if minute forecast is not available for the location.
     pub fn minute_forecast(&self, location: &CLLocation) -> MinuteForecastFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -762,7 +765,7 @@ impl AsyncWeatherService {
     ///
     /// Wraps `WeatherService.weather(for: including: .alerts) async throws`.
     pub fn weather_alerts(&self, location: &CLLocation) -> WeatherAlertsFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -787,7 +790,7 @@ impl AsyncWeatherService {
     ///
     /// Wraps `WeatherService.weather(for: including: .availability) async throws`.
     pub fn availability(&self, location: &CLLocation) -> AvailabilityFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -813,7 +816,7 @@ impl AsyncWeatherService {
     ///
     /// Wraps `WeatherService.attribution async throws`.
     pub fn attribution(&self) -> AttributionFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(None) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -838,7 +841,7 @@ impl AsyncWeatherService {
     ///
     /// Returns an error on macOS < 15.0.
     pub fn weather_changes(&self, location: &CLLocation) -> WeatherChangesFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();
@@ -865,7 +868,7 @@ impl AsyncWeatherService {
     ///
     /// Returns an error on macOS < 15.0.
     pub fn historical_comparisons(&self, location: &CLLocation) -> HistoricalComparisonsFuture {
-        let ptr = match self.service_ptr() {
+        let ptr = match self.service_ptr(Some(location)) {
             Ok(p) => p,
             Err(e) => {
                 let (future, ctx) = AsyncCompletion::create();

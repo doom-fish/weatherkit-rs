@@ -6,6 +6,9 @@ use weatherkit::prelude::*;
 fn weather_service_supports_shared_and_owned_handles() {
     let shared = WeatherService::shared();
     let _owned = WeatherService::new();
+    if !common::live_tests_enabled("weather_service_supports_shared_and_owned_handles") {
+        return;
+    }
     let weather = common::entitlement_ok(shared.weather(&common::sample_location()));
     if let Some(weather) = weather {
         assert!(!weather.hourly_forecast.is_empty());

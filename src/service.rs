@@ -47,7 +47,7 @@ impl CLLocation {
         }
     }
 
-    fn validate(&self) -> Result<(), WeatherKitError> {
+    pub(crate) fn validate(&self) -> Result<(), WeatherKitError> {
         if !self.latitude.is_finite() || !self.longitude.is_finite() {
             return Err(WeatherKitError::bridge(
                 -1,

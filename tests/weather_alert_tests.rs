@@ -9,6 +9,9 @@ fn weather_alert_descriptors_and_fetch_work() {
         .iter()
         .any(|descriptor| descriptor.raw_value == "unknown"));
 
+    if !common::live_tests_enabled("weather_alert_descriptors_and_fetch_work") {
+        return;
+    }
     let service = WeatherService::shared();
     if let Some(alerts) = common::entitlement_ok(service.weather_alerts(&common::sample_location()))
     {

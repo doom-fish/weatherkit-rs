@@ -4,6 +4,9 @@ use weatherkit::prelude::*;
 
 #[test]
 fn weather_attribution_smoke_or_entitlement() {
+    if !common::live_tests_enabled("weather_attribution_smoke_or_entitlement") {
+        return;
+    }
     let service = WeatherService::shared();
     if let Some(attribution) = common::entitlement_ok(service.attribution()) {
         assert!(!attribution.service_name.is_empty());

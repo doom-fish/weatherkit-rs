@@ -4,6 +4,9 @@ use weatherkit::prelude::*;
 
 #[test]
 fn weather_service_supports_multi_query_helpers() {
+    if !common::live_tests_enabled("weather_service_supports_multi_query_helpers") {
+        return;
+    }
     let service = WeatherService::shared();
     let location = common::sample_location();
 

@@ -69,6 +69,9 @@ fn weather_statistics_and_summaries_smoke_or_entitlement() {
         WeatherService::monthly_statistics_between_months;
     let _ = sample_interval(1);
 
+    if !common::live_tests_enabled("weather_statistics_and_summaries_smoke_or_entitlement") {
+        return;
+    }
     let service = WeatherService::shared();
     let location = common::sample_location();
 

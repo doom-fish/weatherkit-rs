@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   examples. The rpath pointed into Xcode, so it never made back-deployment
   work on other machines; `libswift_Concurrency` resolves through
   `/usr/lib/swift`.
+- `AsyncWeatherService` validates coordinates before it calls WeatherKit, as
+  `WeatherService` already did. A non-finite or out-of-range latitude or
+  longitude now returns an error without a service request.
 
 ## [0.3.6] - 2026-05-20
 

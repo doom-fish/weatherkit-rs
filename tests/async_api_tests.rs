@@ -5,13 +5,18 @@
 //! cargo test --features async --test async_api_tests
 //! ```
 //!
-//! Tests that require a live `WeatherKit` entitlement are gated by an
-//! `is_entitlement_issue()` check and pass gracefully in CI.
+//! Tests that call the `WeatherKit` service run only with
+//! `WEATHERKIT_LIVE_TESTS=1`, and then pass gracefully without a live
+//! entitlement through an `is_entitlement_issue()` check.
+
+mod common;
 
 #[cfg(feature = "async")]
 mod tests {
     use weatherkit::async_api::AsyncWeatherService;
     use weatherkit::service::CLLocation;
+
+    use crate::common;
 
     /// San Jose, CA — a location with full `WeatherKit` data availability.
     const SAN_JOSE: CLLocation = CLLocation::new(37.3382, -121.8863);
@@ -28,6 +33,9 @@ mod tests {
 
     #[test]
     fn async_weather_returns_result() {
+        if !common::live_tests_enabled("async_weather_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.weather(&SAN_JOSE).await {
@@ -48,6 +56,9 @@ mod tests {
 
     #[test]
     fn async_current_weather_returns_result() {
+        if !common::live_tests_enabled("async_current_weather_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.current_weather(&SAN_JOSE).await {
@@ -62,6 +73,9 @@ mod tests {
 
     #[test]
     fn async_hourly_forecast_returns_result() {
+        if !common::live_tests_enabled("async_hourly_forecast_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.hourly_forecast(&SAN_JOSE).await {
@@ -76,6 +90,9 @@ mod tests {
 
     #[test]
     fn async_daily_forecast_returns_result() {
+        if !common::live_tests_enabled("async_daily_forecast_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.daily_forecast(&SAN_JOSE).await {
@@ -90,6 +107,9 @@ mod tests {
 
     #[test]
     fn async_availability_returns_result() {
+        if !common::live_tests_enabled("async_availability_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.availability(&SAN_JOSE).await {
@@ -104,6 +124,9 @@ mod tests {
 
     #[test]
     fn async_attribution_returns_result() {
+        if !common::live_tests_enabled("async_attribution_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.attribution().await {
@@ -118,6 +141,9 @@ mod tests {
 
     #[test]
     fn async_weather_alerts_returns_result() {
+        if !common::live_tests_enabled("async_weather_alerts_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.weather_alerts(&SAN_JOSE).await {
@@ -132,6 +158,9 @@ mod tests {
 
     #[test]
     fn async_minute_forecast_returns_result() {
+        if !common::live_tests_enabled("async_minute_forecast_returns_result") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.minute_forecast(&SAN_JOSE).await {
@@ -146,6 +175,9 @@ mod tests {
 
     #[test]
     fn async_weather_changes_returns_result_or_os_error() {
+        if !common::live_tests_enabled("async_weather_changes_returns_result_or_os_error") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.weather_changes(&SAN_JOSE).await {
@@ -164,6 +196,9 @@ mod tests {
 
     #[test]
     fn async_historical_comparisons_returns_result_or_os_error() {
+        if !common::live_tests_enabled("async_historical_comparisons_returns_result_or_os_error") {
+            return;
+        }
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.historical_comparisons(&SAN_JOSE).await {
@@ -187,16 +222,14 @@ mod tests {
     fn async_weather_bad_location_returns_err() {
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
-            // latitude 999 is out of the valid -90..=90 range; the sync service
-            // returns an error, but WeatherKit itself validates too.
-            // We rely on the service not panicking and producing some Result.
             let bad = CLLocation::new(999.0, 0.0);
-            let result = svc.weather(&bad).await;
-            // Either the Rust-side validation or Swift fires an error.
-            // We just verify we get an Err (not a panic).
+            let error = svc
+                .weather(&bad)
+                .await
+                .expect_err("bad latitude should produce an error");
             assert!(
-                result.is_err(),
-                "bad latitude should produce an error, got: {result:?}"
+                error.message.contains("latitude 999 is outside -90..=90"),
+                "unexpected error: {error}"
             );
         });
     }
@@ -206,8 +239,40 @@ mod tests {
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             let bad = CLLocation::new(0.0, 999.0);
-            let result = svc.hourly_forecast(&bad).await;
-            assert!(result.is_err(), "bad longitude should produce an error, got: {result:?}");
+            let error = svc
+                .hourly_forecast(&bad)
+                .await
+                .expect_err("bad longitude should produce an error");
+            assert!(
+                error
+                    .message
+                    .contains("longitude 999 is outside -180..=180"),
+                "unexpected error: {error}"
+            );
+        });
+    }
+
+    #[test]
+    fn async_queries_reject_non_finite_coordinates_before_the_service() {
+        pollster::block_on(async {
+            let svc = AsyncWeatherService::shared();
+            let bad = CLLocation::new(f64::NAN, 0.0);
+            let results = [
+                svc.current_weather(&bad).await.err(),
+                svc.daily_forecast(&bad).await.err(),
+                svc.minute_forecast(&bad).await.err(),
+                svc.weather_alerts(&bad).await.err(),
+                svc.availability(&bad).await.err(),
+                svc.weather_changes(&bad).await.err(),
+                svc.historical_comparisons(&bad).await.err(),
+            ];
+            for error in results {
+                let error = error.expect("non-finite coordinates should produce an error");
+                assert!(
+                    error.message.contains("must be finite numbers"),
+                    "unexpected error: {error}"
+                );
+            }
         });
     }
 }

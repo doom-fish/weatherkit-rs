@@ -4,6 +4,9 @@ use weatherkit::prelude::*;
 
 #[test]
 fn daily_forecast_smoke_or_entitlement() {
+    if !common::live_tests_enabled("daily_forecast_smoke_or_entitlement") {
+        return;
+    }
     let service = WeatherService::shared();
     if let Some(daily) = common::entitlement_ok(service.daily_forecast(&common::sample_location()))
     {

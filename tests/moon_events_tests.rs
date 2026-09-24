@@ -9,6 +9,9 @@ fn moon_phase_descriptors_and_events_work() {
         .iter()
         .any(|descriptor| descriptor.raw_value == "full"));
 
+    if !common::live_tests_enabled("moon_phase_descriptors_and_events_work") {
+        return;
+    }
     let service = WeatherService::shared();
     if let Some(moon) = common::entitlement_ok(service.moon_events(&common::sample_location())) {
         assert!(!moon.phase.raw_value().is_empty());

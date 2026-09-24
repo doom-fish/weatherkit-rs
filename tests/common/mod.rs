@@ -13,3 +13,11 @@ pub fn entitlement_ok<T>(result: Result<T, WeatherKitError>) -> Option<T> {
         Err(error) => panic!("unexpected WeatherKit error: {error}"),
     }
 }
+
+pub fn live_tests_enabled(test: &str) -> bool {
+    let enabled = std::env::var("WEATHERKIT_LIVE_TESTS").as_deref() == Ok("1");
+    if !enabled {
+        eprintln!("{test}: skipped; set WEATHERKIT_LIVE_TESTS=1 to call the WeatherKit service");
+    }
+    enabled
+}
