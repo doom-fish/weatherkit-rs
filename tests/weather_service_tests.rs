@@ -11,7 +11,7 @@ fn weather_service_supports_shared_and_owned_handles() {
     }
     let weather = common::entitlement_ok(shared.weather(&common::sample_location()));
     if let Some(weather) = weather {
-        assert!(!weather.hourly_forecast.is_empty());
-        assert!(!weather.daily_forecast.is_empty());
+        assert_ne!(weather.hourly_forecast, [] as [weatherkit::HourForecast; 0]);
+        assert_ne!(weather.daily_forecast, [] as [weatherkit::DayForecast; 0]);
     }
 }

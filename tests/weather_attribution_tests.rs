@@ -9,7 +9,7 @@ fn weather_attribution_smoke_or_entitlement() {
     }
     let service = WeatherService::shared();
     if let Some(attribution) = common::entitlement_ok(service.attribution()) {
-        assert!(!attribution.service_name.is_empty());
+        assert_ne!(attribution.service_name, "");
         assert!(attribution.legal_page_url.starts_with("http"));
     }
 }

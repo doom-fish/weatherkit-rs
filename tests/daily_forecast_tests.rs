@@ -10,7 +10,7 @@ fn daily_forecast_smoke_or_entitlement() {
     let service = WeatherService::shared();
     if let Some(daily) = common::entitlement_ok(service.daily_forecast(&common::sample_location()))
     {
-        assert!(!daily.forecast.is_empty());
+        assert_ne!(daily.forecast, [] as [weatherkit::DayForecast; 0]);
         let first = &daily.forecast[0];
         assert!(
             first.high_temperature >= first.low_temperature

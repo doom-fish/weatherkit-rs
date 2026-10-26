@@ -11,7 +11,7 @@ fn hourly_forecast_smoke_or_entitlement() {
     if let Some(hourly) =
         common::entitlement_ok(service.hourly_forecast(&common::sample_location()))
     {
-        assert!(!hourly.forecast.is_empty());
+        assert_ne!(hourly.forecast, [] as [weatherkit::HourForecast; 0]);
         assert!(hourly.forecast[0].temperature.is_finite());
     }
 }

@@ -79,7 +79,10 @@ mod tests {
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.hourly_forecast(&SAN_JOSE).await {
-                Ok(hf) => assert!(!hf.forecast.is_empty(), "hourly forecast should be non-empty"),
+                Ok(hf) => assert!(
+                    !hf.forecast.is_empty(),
+                    "hourly forecast should be non-empty"
+                ),
                 Err(e) if is_auth(&e) => {
                     eprintln!("async_hourly_forecast: skipped (auth) — {e}");
                 }
@@ -96,7 +99,10 @@ mod tests {
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.daily_forecast(&SAN_JOSE).await {
-                Ok(df) => assert!(!df.forecast.is_empty(), "daily forecast should be non-empty"),
+                Ok(df) => assert!(
+                    !df.forecast.is_empty(),
+                    "daily forecast should be non-empty"
+                ),
                 Err(e) if is_auth(&e) => {
                     eprintln!("async_daily_forecast: skipped (auth) — {e}");
                 }
@@ -130,7 +136,7 @@ mod tests {
         pollster::block_on(async {
             let svc = AsyncWeatherService::shared();
             match svc.attribution().await {
-                Ok(attr) => assert!(!attr.service_name.is_empty()),
+                Ok(attr) => assert_ne!(attr.service_name, ""),
                 Err(e) if is_auth(&e) => {
                     eprintln!("async_attribution: skipped (auth) — {e}");
                 }

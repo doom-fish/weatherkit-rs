@@ -23,11 +23,11 @@ fn weather_changes_and_historical_comparisons_smoke_or_entitlement() {
             match comparison {
                 HistoricalComparison::HighTemperature(trend)
                 | HistoricalComparison::LowTemperature(trend) => {
-                    assert!(!trend.baseline.start_date.is_empty());
+                    assert_ne!(trend.baseline.start_date, "");
                 }
                 HistoricalComparison::PrecipitationAmount(trend)
                 | HistoricalComparison::SnowfallAmount(trend) => {
-                    assert!(!trend.baseline.start_date.is_empty());
+                    assert_ne!(trend.baseline.start_date, "");
                 }
             }
         }
