@@ -10,10 +10,12 @@ use crate::private::parse_json_from_handle;
 use crate::service::WeatherMetadata;
 
 /// Marks WeatherKit temperature values, which this crate reports in degrees Celsius.
+#[allow(clippy::empty_enums)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TemperatureUnit {}
 
 /// Marks WeatherKit precipitation and snowfall lengths, which this crate reports in metres.
+#[allow(clippy::empty_enums)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum LengthUnit {}
 
