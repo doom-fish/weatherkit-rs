@@ -21,6 +21,7 @@ pub mod weather_attribution;
 pub mod weather_condition;
 
 extern "C" {
+    #[link_name = "weatherkit_string_free"]
     pub fn wk_string_free(s: *mut c_char);
 }
 

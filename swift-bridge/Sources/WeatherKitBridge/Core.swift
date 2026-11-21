@@ -92,7 +92,7 @@ struct WKDayPartForecastPayload: Codable {
     let highWindSpeed: Double?
 }
 
-@_cdecl("wk_string_free")
+@_cdecl("weatherkit_string_free")
 public func wk_string_free(_ string: UnsafeMutablePointer<CChar>?) {
     guard let string else { return }
     string.deallocate()

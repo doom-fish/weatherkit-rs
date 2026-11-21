@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-void wk_string_free(char *s);
+void weatherkit_string_free(char *s);
 
 #ifdef __cplusplus
 }
